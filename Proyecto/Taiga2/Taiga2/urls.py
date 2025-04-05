@@ -28,4 +28,6 @@ urlpatterns = [
     # Custom endpoints
     path('api/', include(custom_urlpatterns)),
 
+    path('issues/search/', IssueViewSet.as_view({'get': 'search_issues', 'post': 'search_issues'}), name='issue-search'),
+
 ]

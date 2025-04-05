@@ -1,5 +1,6 @@
 from django.urls import reverse
 from rest_framework import viewsets, status
+from django.db.models import Q
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.decorators import action
@@ -18,6 +19,7 @@ class IssueViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend]
     permission_classes = [IsAuthenticated]
     filterset_fields = ['status', 'priority_id', 'assigned_to', 'created_by']
+    search_fields = ['title', 'description']
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
@@ -59,6 +61,23 @@ class IssueViewSet(viewsets.ModelViewSet):
     def perform_bulk_create(self, serializer):
             return serializer.save()
 
+    @action(detail=False, methods=['get', 'post'], url_path='search', url_name='search')
+    def search_issues(self, request):
+        if request.method == 'GET':
+            return render(request, 'search.html')
+
+        search_term = request.POST.get('search_term').strip()
+
+        if not search_term:
+            return render(request, 'search.html',
+                          {'error': 'Debes ingresar un término de búsqueda'})
+        issues = Issue.objects.filter(
+            Q(title__icontains=search_term) |
+            Q(description__icontains=search_term)
+        ).order_by('-created_at')
+
+        return render(request, 'search_results.html',
+                      {'issues': issues, 'search_term':search_term})
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
