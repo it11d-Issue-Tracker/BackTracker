@@ -1,0 +1,39 @@
+<!-- Issue_Tracker/templates/Issue_Tracker/search_results.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Resultados de Búsqueda</title>
+    <style>
+        .results-container {
+            margin: 20px;
+        }
+        .issue-card {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="results-container">
+        <h1>Resultados para "{{ search_term }}"</h1>
+
+        {% if issues %}
+            <p>{{ issues|length }} resultados encontrados:</p>
+
+            {% for issue in issues %}
+            <div class="issue-card">
+                <h3>{{ issue.title }}</h3>
+                <p>{{ issue.description|default:"Sin descripción" }}</p>
+                <p><small>Estado: {{ issue.status }} | Creado: {{ issue.created_at }}</small></p>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p>No se encontraron resultados.</p>
+        {% endif %}
+
+        <a href="{% url 'issue-search' %}">Nueva búsqueda</a>
+    </div>
+</body>
+</html>
