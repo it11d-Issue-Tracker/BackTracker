@@ -5,9 +5,13 @@ from django.urls import path
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from Issue_Tracker.views import IssueViewSet
+from Issue_Tracker.views import issue_detail
+
+
 
 router = DefaultRouter()
 router.register(r'issues', IssueViewSet, basename='issue')
+
 
 custom_urlpatterns = [
     path('issues/bulk-create/',
@@ -30,4 +34,6 @@ urlpatterns = [
 
     path('issues/search/', IssueViewSet.as_view({'get': 'search_issues', 'post': 'search_issues'}), name='issue-search'),
 
+    path('api/custom-issues/', IssueViewSet.issues_page, name='custom-issues'),
+    path('api/issue-detail/<int:issue_id>/', issue_detail, name='issue-detail'),
 ]

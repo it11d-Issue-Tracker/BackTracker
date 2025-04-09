@@ -6,10 +6,16 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from django.contrib import messages
 from .models import Issue
-from django.shortcuts import render, redirect
+from .models import Comment
+from django.shortcuts import render, redirect, get_object_or_404
 from .serializers import IssueSerializer
+from .serializers import IssueDetailSerializer
+from .serializers import CommentSerializer
+
 from django.utils.timezone import now
 from django_filters.rest_framework import DjangoFilterBackend
+from Issue_Tracker.models import Comment
+from Issue_Tracker.forms import CommentForm, IssueUpdateForm, IssueCreateForm
 
 
 class IssueViewSet(viewsets.ModelViewSet):
@@ -49,6 +55,7 @@ class IssueViewSet(viewsets.ModelViewSet):
         ]
 
         Issue.objects.bulk_create(issues)
+
 
         # Falta hacer redirect a api/issues
         return Response(
@@ -96,3 +103,46 @@ class IssueViewSet(viewsets.ModelViewSet):
         if title:
             queryset = queryset.filter(abctitle__icontains=title)
         return queryset
+
+
+    def issues_page(request):
+        issues = Issue.objects.all().order_by('-created_at')  # Ordena per data de creació (més recents primer)
+
+        if request.method == 'POST':
+            form = IssueCreateForm(request.POST)
+            if form.is_valid():
+                new_issue = form.save(commit=False)
+                new_issue.created_by = request.user
+                new_issue.save()
+                return redirect('custom-issues')  # Redirigeix a la mateixa pàgina després de crear l'*issue*
+        else:
+            form = IssueCreateForm()
+
+        return render(request, 'issues_page.html', {'issues': issues, 'form': form})
+
+def issue_detail(request, issue_id):
+    issue = get_object_or_404(Issue, id_issue=issue_id)
+
+    if request.method == 'POST':
+        if 'update_issue' in request.POST:
+            issue_form = IssueUpdateForm(request.POST, instance=issue)
+            if issue_form.is_valid():
+                issue_form.save()
+                return redirect('issue-detail', issue_id=issue_id)
+        else:
+            comment_form = CommentForm(request.POST)
+            if comment_form.is_valid():
+                comment = comment_form.save(commit=False)
+                comment.issue = issue
+                comment.author = request.user
+                comment.save()
+                return redirect('issue-detail', issue_id=issue_id)
+    else:
+        issue_form = IssueUpdateForm(instance=issue)
+        comment_form = CommentForm()
+
+    return render(request, 'issue_detail.html', {
+        'issue': issue,
+        'issue_form': issue_form,
+        'comment_form': comment_form
+    })

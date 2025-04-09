@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Llista d'Issues</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="mb-4">Llista d'Issues</h1>
+        <table class="table table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Títol</th>
+                    <th>Estat</th>
+                    <th>Prioritat</th>
+                    <th>Assignat a</th>
+                    <th>Accions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for issue in issues %}
+                <tr>
+                    <td>{{ issue.title }}</td>
+                    <td>
+                        <span class="badge
+                            {% if issue.status == 'Open' %}bg-success
+                            {% elif issue.status == 'Closed' %}bg-danger
+                            {% else %}bg-secondary{% endif %}">
+                            {{ issue.status }}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="badge
+                            {% if issue.priority_id == 'High' %}bg-danger
+                            {% elif issue.priority_id == 'Medium' %}bg-warning
+                            {% else %}bg-info{% endif %}">
+                            {{ issue.priority_id }}
+                        </span>
+                    </td>
+                    <td>
+                        {% if issue.assigned_to %}
+                            {{ issue.assigned_to.username }}
+                        {% else %}
+                            No assignat
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'issue-detail' issue.id_issue %}" class="btn btn-primary btn-sm">Detalls</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Formulari per crear un nou issue -->
+        <div class="card mt-4">
+            <div class="card-body">
+                <h5 class="card-title">Crea un nou Issue</h5>
+                <form method="post">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <button type="submit" class="btn btn-primary">Crear</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
