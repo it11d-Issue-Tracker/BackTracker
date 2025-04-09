@@ -6,18 +6,32 @@ import uuid
 
 class Issue(models.Model):
     STATUS_CHOICES = [
-        ('new', 'New'),
-        ('in_progress', 'In Progress'),
-        ('ready_for_test', 'Ready for Test'),
-        ('closed', 'Closed'),
-        ('archived', 'Archived'),
+        (1, 'New'),
+        (2, 'In Progress'),
+        (3, 'Ready for Test'),
+        (4, 'Closed'),
+        (5, 'Archived'),
     ]
 
     PRIORITY_CHOICES = [
-        ('low', 'Low'),
-        ('normal', 'Normal'),
-        ('high', 'High'),
-        ('critical', 'Critical'),
+        (1, 'Low'),
+        (2, 'Normal'),
+        (3, 'High'),
+        (4, 'Critical'),
+    ]
+
+    SEVERITY_CHOICES = [
+        (1, 'Wishlist'),
+        (2, 'Minor'),
+        (3, 'Normal'),
+        (4, 'Important'),
+        (5, 'Critical'),
+    ]
+
+    TYPE_CHOICES = [
+        (1, 'Bug'),
+        (2, 'Question'),
+        (3, 'Enhancement'),
     ]
 
     id_issue = models.AutoField(primary_key=True, editable=False)
@@ -34,6 +48,47 @@ class Issue(models.Model):
 
     class Meta:
         db_table = 'issue'
+
+    @property
+    def type_color(self):
+        return {
+            1: 'red',
+            2: 'green',
+            3: 'purple',
+        }.get(self.type, 'gray')
+
+    @property
+    def severity_color(self):
+        return {
+            1: 'yellow',
+            2: 'orange',
+            3: 'red',
+        }.get(self.severity, 'gray')
+
+    @property
+    def priority_color(self):
+        return {
+            1: 'green',
+            2: 'gray',
+            3: 'orange',
+            4: 'red',
+        }.get(self.priority_id, 'gray')
+
+    @property
+    def status_label(self):
+        return dict(self.STATUS_CHOICES).get(self.priority)
+
+    @property
+    def priority_label(self):
+        return dict(self.PRIORITY_CHOICES).get(self.priority)
+
+    @property
+    def serverity_label(self):
+        return dict(self.PRIORITY_CHOICES).get(self.priority)
+
+    @property
+    def type_label(self):
+        return dict(self.PRIORITY_CHOICES).get(self.priority)
 
 
 class Comment(models.Model):
