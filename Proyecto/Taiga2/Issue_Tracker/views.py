@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from django.contrib import messages
 from .models import Issue
+from .models import User
 from .models import Comment
 from django.shortcuts import render, redirect, get_object_or_404
 from .serializers import IssueSerializer
@@ -98,27 +99,75 @@ class IssueViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        # Filtro por título
         title = self.request.query_params.get('title', None)
         if title:
             queryset = queryset.filter(abctitle__icontains=title)
         return queryset
 
 
-    def issues_page(request):
-        issues = Issue.objects.all().order_by('-created_at')  # Ordena per data de creació (més recents primer)
+def issues_page(request):
+
+        issues = Issue.objects.all().order_by('-created_at')
+        users = User.objects.all().order_by('username')
+        status = request.GET.get('status')
+        priority_id = request.GET.get('priority_id')
+        assigned_to = request.GET.get('assigned_to')
+        created_by = request.GET.get('created_by')
+
+        if status:
+            issues = issues.filter(status=status)
+        if priority_id:
+            issues = issues.filter(priority_id=priority_id)
+        if assigned_to:
+            issues = issues.filter(assigned_to__id=assigned_to)
+        if created_by:
+            issues = issues.filter(created_by__id=created_by)
+
+
+        search_term = request.GET.get('search', '').strip()
+        if search_term:
+            issues = issues.filter(
+                Q(title__icontains=search_term) |
+                Q(description__icontains=search_term)
+            )
 
         if request.method == 'POST':
-            form = IssueCreateForm(request.POST)
-            if form.is_valid():
-                new_issue = form.save(commit=False)
-                new_issue.created_by = request.user
-                new_issue.save()
-                return redirect('custom-issues')  # Redirigeix a la mateixa pàgina després de crear l'*issue*
+            if 'bulk_titles' in request.POST:
+                titles_text = request.POST.get("bulk_titles", "").strip()
+                titles = [title.strip() for title in titles_text.split("\n") if title.strip()]
+
+                if not titles:
+                    messages.error(request, 'Debes ingresar al menos un título.')
+                else:
+                    issues = [
+                        Issue(
+                            title=title,
+                            status="new",
+                            priority_id="normal",
+                            created_by=request.user,
+                            deadline=now()
+                        )
+                        for title in titles
+                    ]
+                    Issue.objects.bulk_create(issues)
+                    messages.success(request, f'Se crearon {len(issues)} issues.')
+                    return redirect('custom-issues')
+            else:
+                form = IssueCreateForm(request.POST)
+                if form.is_valid():
+                    new_issue = form.save(commit=False)
+                    new_issue.created_by = request.user
+                    new_issue.save()
+                    return redirect('custom-issues')
         else:
             form = IssueCreateForm()
 
-        return render(request, 'issues_page.html', {'issues': issues, 'form': form})
+        return render(request, 'issues_page.html', {
+            'issues': issues,
+            'form': form,
+            'users': users
+        })
+
 
 def issue_detail(request, issue_id):
     issue = get_object_or_404(Issue, id_issue=issue_id)

@@ -8,13 +8,81 @@
 </head>
 <body>
     <div class="container mt-5">
-        <h1 class="mb-4">Llista d'Issues</h1>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Llista d'Issues</h1>
+            <div>
+                <button class="btn btn-outline-primary me-2" data-bs-toggle="collapse" data-bs-target="#searchCollapse">
+                    Cerca/Filtra
+                </button>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#bulkModal">
+                    Bulk_Insert
+                </button>
+            </div>
+        </div>
+
+        <!-- Secció de cerca i filtre (col·lapsable) -->
+        <div class="collapse mb-4" id="searchCollapse">
+            <div class="card card-body">
+                <form method="get" class="row g-3">
+                    <div class="col-md-4">
+                        <input type="text" name="search" class="form-control" placeholder="Cerca per títol o descripció" value="{{ request.GET.search }}">
+                    </div>
+                    <div class="col-md-2">
+                        <select name="status" class="form-select">
+                            <option value="">Tots els estats</option>
+                            <option value="new" {% if request.GET.status == 'new' %}selected{% endif %}>New</option>
+                            <option value="in_progress" {% if request.GET.status == 'in_progress' %}selected{% endif %}>In Progress</option>
+                            <option value="ready_for_test" {% if request.GET.status == 'ready_for_test' %}selected{% endif %}>Ready For Test</option>
+                            <option value="closed" {% if request.GET.status == 'closed' %}selected{% endif %}>Closed</option>
+                            <option value="archived" {% if request.GET.status == 'archived' %}selected{% endif %}>Archived</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select name="priority_id" class="form-select">
+                            <option value="">Totes prioritats</option>
+                            <option value="critical" {% if request.GET.priority_id == 'critical' %}selected{% endif %}>Critical</option>
+                            <option value="high" {% if request.GET.priority_id == 'high' %}selected{% endif %}>High</option>
+                            <option value="normal" {% if request.GET.priority_id == 'normal' %}selected{% endif %}>Normal</option>
+                            <option value="low" {% if request.GET.priority_id == 'low' %}selected{% endif %}>Low</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select name="created_by" class="form-select">
+                            <option value="">Tots els creadors</option>
+                            {% for user in users %}
+                            <option value="{{ user.id }}"
+                                    {% if request.GET.created_by == user.id|stringformat:"s" %}selected{% endif %}>
+                                {{ user.username }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select name="assigned_to" class="form-select">
+                            <option value="">Tots els assignats</option>
+                            {% for user in users %}
+                            <option value="{{ user.id }}"
+                                    {% if request.GET.assigned_to == user.id|stringformat:"s" %}selected{% endif %}>
+                                {{ user.username }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100">Aplica</button>
+                        <a href="." class="btn btn-outline-secondary w-100 mt-2">Neteja</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
         <table class="table table-hover align-middle">
             <thead class="table-dark">
                 <tr>
                     <th>Títol</th>
                     <th>Estat</th>
                     <th>Prioritat</th>
+                    <th>Creador</th>
                     <th>Assignat a</th>
                     <th>Accions</th>
                 </tr>
@@ -25,25 +93,27 @@
                     <td>{{ issue.title }}</td>
                     <td>
                         <span class="badge
-                            {% if issue.status == 'Open' %}bg-success
-                            {% elif issue.status == 'Closed' %}bg-danger
-                            {% else %}bg-secondary{% endif %}">
-                            {{ issue.status }}
+                            {% if issue.status == 'new' %}bg-secondary
+                            {% elif issue.status == 'in_progress' %}bg-primary
+                            {% elif issue.status == 'closed' %}bg-success
+                            {% else %}bg-warning{% endif %}">
+                            {{ issue.get_status_display }}
                         </span>
                     </td>
                     <td>
                         <span class="badge
-                            {% if issue.priority_id == 'High' %}bg-danger
-                            {% elif issue.priority_id == 'Medium' %}bg-warning
-                            {% else %}bg-info{% endif %}">
-                            {{ issue.priority_id }}
+                            {% if issue.priority_id == 'high' %}bg-danger
+                            {% elif issue.priority_id == 'normal' %}bg-info
+                            {% else %}bg-warning{% endif %}">
+                            {{ issue.get_priority_id_display }}
                         </span>
                     </td>
+                    <td>{{ issue.created_by.username }}</td>
                     <td>
                         {% if issue.assigned_to %}
                             {{ issue.assigned_to.username }}
                         {% else %}
-                            No assignat
+                            <span class="text-muted">No assignat</span>
                         {% endif %}
                     </td>
                     <td>
@@ -66,6 +136,32 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal per creació massiva -->
+    <div class="modal fade" id="bulkModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Creació Massiva d'Issues</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tanca"></button>
+                </div>
+                <form method="post">
+                    <div class="modal-body">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label">Introduïu els títols (un per línia):</label>
+                            <textarea name="bulk_titles" class="form-control" rows="5" required></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel·la</button>
+                        <button type="submit" class="btn btn-primary">Crear Issues</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
