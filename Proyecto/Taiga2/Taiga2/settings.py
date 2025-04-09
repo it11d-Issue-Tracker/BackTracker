@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
+    'storages',
 
 ]
 
@@ -62,6 +63,21 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+AWS_ACCESS_KEY_ID = 'ASIA2KPQ6TKJXVPDJYUG'
+AWS_SECRET_ACCESS_KEY = '4PoIeHwIt8iqmUGz+rAE1t0w7FiX7eIAKJEDdgIX'
+AWS_SESSION_TOKEN = 'IQoJb3JpZ2luX2VjEBoaCXVzLXdlc3QtMiJHMEUCIBlB34O9sls/NfJP3ZUZ6yUchwojvitTITChHcR645jUAiEAplmjEaUJQ1hPwYE3rGTRBRD0sawmq4maPZKRdrqZaocqxgIIk///////////ARAAGgw3MDk3MTE3OTY4ODMiDHrGlJq7xBsTRQ4OBiqaAmix9NvocspXy0s4yteM9xahZwCZql/+QoIrXpxyH+CAkQBUZOuYzR60gA0f9KPzXrPEstCGfHXZzMFpsC1V1p5jEfQfVCoASQ+ppSw0m/OJlHxEytTLAqbCeLBHlVFH6pSluJNwjTILXDyoidnKw+AT342F9BIGlQ6e6DQ9sAn+WBjEn7AqJifv0QQJL3a0wjDirEFR4kWIpEeYK4amFD3IZZM1cp6X+D4LWjCMPhLPOJsrnVkndBLyik7layzq/Wnagvaa4oa/ZoEY0KLo5kPgqiE/77uKH/Q3s3hdfuHUD2m8y2CG/hVjqBWCtgID034DKSukxeJIVemTxE/2lTlF+Bt+QkZGnYnb2XWT9xJOKZgdBKKNo/jFDzD12dq/BjqdAcOHXN9crLdgVBe8ToG9lIgmeuiocU2XIdP1NM2twiK81MsALT+Q450w2a37TAq+gOEU4rCsPRDC5cfbbeJ+1cXM/yW21n9XT1HNmwdRrXIb/KjPsrIxcyi6Cb80zFpTvF6VobEAQgu2HrwRsRZpEq487bmLiYpu44hUncImlwX+ggAkhUX5Aez0+UGTUTvrvPGymMfK05F2UapjIfc='
+AWS_STORAGE_BUCKET_NAME = 'issuetracker34'
+AWS_S3_REGION_NAME = 'us-east-1'
+AWS_S3_FILE_OVERWRITE = False
+AWS_DEFAULT_ACL = 'private'
+
+
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+AWS_LOCATION = 'attachments'
+AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
+MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/'
+AWS_DEFAULT_ACL = 'public-read'
 
 ROOT_URLCONF = 'Taiga2.urls'
 

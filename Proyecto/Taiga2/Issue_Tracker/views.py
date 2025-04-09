@@ -3,10 +3,10 @@ from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.timezone import now
 from django.contrib.auth.decorators import login_required
-from .models import Issue, User
+from .models import Issue, User, Attachment
+from django.core.files.storage import default_storage
 from django.contrib.auth.models import User
-from .forms import CommentForm, IssueUpdateForm, IssueCreateForm
-
+from .forms import CommentForm, IssueUpdateForm, IssueCreateForm, AttachmentForm
 
 
 def issues_page(request):
@@ -76,6 +76,10 @@ def issues_page(request):
 def issue_detail(request, issue_id):
     issue = get_object_or_404(Issue, id_issue=issue_id)
 
+    issue_form = IssueUpdateForm(instance=issue)
+    comment_form = CommentForm()
+    attachment_form = AttachmentForm()  # Asegúrate de inicializar el formulario aquí también
+
     if request.method == 'POST':
         if 'delete_issue' in request.POST:
             issue.delete()
@@ -86,6 +90,20 @@ def issue_detail(request, issue_id):
             if issue_form.is_valid():
                 issue_form.save()
                 return redirect('issue-detail', issue_id=issue_id)
+        if 'file' in request.FILES:
+            attachment_form = AttachmentForm(request.POST, request.FILES)
+            if attachment_form.is_valid():
+                attachment = attachment_form.save(commit=False)
+                attachment.issue = issue
+                attachment.save()
+                print("✅ Archivo subido a:", attachment.file.url)
+                return redirect('issue-detail', issue_id=issue_id)
+        if 'delete_attachment' in request.POST:
+            attachment_id = request.POST.get('attachment_id')
+            attachment = Attachment.objects.get(attachment_id=attachment_id)
+            attachment.delete()
+            return redirect('issue-detail', issue_id=issue_id)
+
         else:
             comment_form = CommentForm(request.POST)
             if comment_form.is_valid():
@@ -98,10 +116,15 @@ def issue_detail(request, issue_id):
         issue_form = IssueUpdateForm(instance=issue)
         comment_form = CommentForm()
 
+    attachments = issue.attachments.all()
+
     return render(request, 'issue_detail.html', {
         'issue': issue,
         'issue_form': issue_form,
-        'comment_form': comment_form
+        'comment_form': comment_form,
+        'attachment_form': attachment_form,
+        'attachments': attachments
+
     })
 
 def custom_login_view(request):

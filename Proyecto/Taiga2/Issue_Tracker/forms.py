@@ -1,6 +1,7 @@
 from django import forms
 from Issue_Tracker.models import Comment
 from Issue_Tracker.models import Issue
+from Issue_Tracker.models import Attachment
 
 from django.contrib.auth import get_user_model
 User = get_user_model()
@@ -59,3 +60,10 @@ class IssueUpdateForm(forms.ModelForm):
     class Meta:
         model = Issue
         fields = ['assigned_to', 'status']
+
+class AttachmentForm(forms.ModelForm):
+    class Meta:
+        model = Attachment
+        fields = ['file']
+
+

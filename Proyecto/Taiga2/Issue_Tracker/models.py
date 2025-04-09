@@ -53,6 +53,9 @@ class Attachment(models.Model):
     file = models.FileField(upload_to='attachments/')
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
+    def _str_(self):
+        return self.file.name
+
     class Meta:
         db_table = 'attachments'
 
