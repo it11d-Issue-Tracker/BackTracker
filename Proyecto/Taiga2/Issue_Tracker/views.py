@@ -99,7 +99,6 @@ class IssueViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        # Filtro por título
         title = self.request.query_params.get('title', None)
         if title:
             queryset = queryset.filter(abctitle__icontains=title)
@@ -110,7 +109,6 @@ def issues_page(request):
 
         issues = Issue.objects.all().order_by('-created_at')
         users = User.objects.all().order_by('username')
-        # Filtros desde GET parameters
         status = request.GET.get('status')
         priority_id = request.GET.get('priority_id')
         assigned_to = request.GET.get('assigned_to')
@@ -133,9 +131,8 @@ def issues_page(request):
                 Q(description__icontains=search_term)
             )
 
-        # Bulk Create (similar a la acción DRF)
         if request.method == 'POST':
-            if 'bulk_titles' in request.POST:  # Si es un bulk create
+            if 'bulk_titles' in request.POST:
                 titles_text = request.POST.get("bulk_titles", "").strip()
                 titles = [title.strip() for title in titles_text.split("\n") if title.strip()]
 
@@ -155,7 +152,7 @@ def issues_page(request):
                     Issue.objects.bulk_create(issues)
                     messages.success(request, f'Se crearon {len(issues)} issues.')
                     return redirect('custom-issues')
-            else:  # Si es un create normal
+            else:
                 form = IssueCreateForm(request.POST)
                 if form.is_valid():
                     new_issue = form.save(commit=False)
@@ -165,7 +162,6 @@ def issues_page(request):
         else:
             form = IssueCreateForm()
 
-        # Retornar el contexto al template
         return render(request, 'issues_page.html', {
             'issues': issues,
             'form': form,
