@@ -49,7 +49,7 @@ class Comment(models.Model):
 
 class Attachment(models.Model):
     attachment_id = models.AutoField(primary_key=True)
-    issue_id = models.ForeignKey(Issue, on_delete=models.CASCADE, related_name='attachments')
+    issue = models.ForeignKey(Issue, on_delete=models.CASCADE, related_name='attachments')
     file = models.FileField(upload_to='attachments/')
     uploaded_at = models.DateTimeField(auto_now_add=True)
 

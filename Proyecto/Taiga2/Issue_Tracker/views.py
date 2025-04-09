@@ -4,6 +4,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.timezone import now
 from django.contrib.auth.decorators import login_required
 from .models import Issue, User
+from django.contrib.auth.models import User
 from .forms import CommentForm, IssueUpdateForm, IssueCreateForm
 
 
@@ -76,6 +77,10 @@ def issue_detail(request, issue_id):
     issue = get_object_or_404(Issue, id_issue=issue_id)
 
     if request.method == 'POST':
+        if 'delete_issue' in request.POST:
+            issue.delete()
+            messages.success(request, 'L\'issue s\'ha esborrat correctament.')
+            return redirect('custom-issues')  # Redirigeix a la llista d'issuesdo
         if 'update_issue' in request.POST:
             issue_form = IssueUpdateForm(request.POST, instance=issue)
             if issue_form.is_valid():
