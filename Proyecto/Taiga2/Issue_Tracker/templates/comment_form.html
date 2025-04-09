@@ -1,0 +1,5 @@
+<form method="post" action="{% url 'comments' issue.id %}">
+    {% csrf_token %}
+    <textarea name="content" placeholder="Escriu el teu comentari aquí"></textarea>
+    <button type="submit">Enviar</button>
+</form>
