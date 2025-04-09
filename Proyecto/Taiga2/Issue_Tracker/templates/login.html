@@ -1,0 +1,14 @@
+{% load socialaccount %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Iniciar sesión</title>
+</head>
+<body>
+    <h1>Inicia sesión con Google</h1>
+    <a href="{% provider_login_url 'google' %}">
+        <button>Login con Google</button>
+    </a>
+</body>
+</html>
