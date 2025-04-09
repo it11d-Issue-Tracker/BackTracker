@@ -14,7 +14,7 @@ def sync_auth_user_to_users(sender, instance, created, **kwargs):
             # Inserir un nou registre a la taula users
             cursor.execute(
                 """
-                INSERT INTO users (id_user, username)
+                INSERT INTO perfils (id_user, username)
                 VALUES (%s, %s)
                 """,
                 [instance.id, instance.username]
@@ -23,7 +23,7 @@ def sync_auth_user_to_users(sender, instance, created, **kwargs):
             # Actualitzar un registre existent a la taula users
             cursor.execute(
                 """
-                UPDATE users
+                UPDATE perfils
                 SET username = %s
                 WHERE id_user = %s
                 """,
