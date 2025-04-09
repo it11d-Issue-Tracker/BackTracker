@@ -39,10 +39,10 @@
                         <tr>
                             <th><a href="?sort=type">T</a></th>
                             <th><a href="?sort=severity">S</a></th>
-                            <th><a href="?sort=priority">P</a></th>
-                            <th><a href="?sort=number">Issue</a></th>
+                            <th><a href="?sort=priority_id">P</a></th>
+                            <th><a href="?sort=id_issue">Issue</a></th>
                             <th><a href="?sort=status">Status</a></th>
-                            <th><a href="?sort=modified">Modified</a></th>
+                            <th><a href="?sort=updated_at">Modified</a></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -53,7 +53,7 @@
                             <td><span class="dot {{ issue.priority_color }}"></span></td>
                             <td>#{{ issue.number }} <a href="{% url 'issue_detail' issue.number %}">{{ issue.title }}</a></td>
                             <td>{{ issue.status }}</td>
-                            <td>{{ issue.modified|date:"d M Y" }}</td>
+                            <td>{{ issue.updated_at|date:"d M Y" }}</td>
                         </tr>
                         {% empty %}
                         <tr><td colspan="6">No issues found.</td></tr>

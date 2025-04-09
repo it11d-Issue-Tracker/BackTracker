@@ -105,12 +105,14 @@ def custom_login_view(request):
     return render(request, 'login.html')
 
 def profile_view_id(request, userid):
-    user = get_object_or_404(User, userid)
+    user = get_object_or_404(User, id=userid)
     active_tab = request.GET.get('tab', 'assigned')
 
     assigned_issues = Issue.objects.filter(assigned_to=user)
     watched_issues = Issue.objects.filter(watchers=user)
     user_comments = user.comment_set.select_related('issue')
+
+    sort_by = request.GET.get('sort', '-updated_at')
 
     context = {
         'user': user,
@@ -120,9 +122,9 @@ def profile_view_id(request, userid):
         'comments_count': user_comments.count(),
     }
     if active_tab == 'assigned':
-        context['issues'] = assigned_issues.order_by('-updated_at')
+        context['issues'] = assigned_issues.order_by(sort_by)
     elif active_tab == 'watched':
-        context['issues'] = watched_issues.order_by('-updated_at')
+        context['issues'] = watched_issues.order_by(sort_by)
     elif active_tab == 'comments':
         context['comments'] = user_comments.order_by('-created_at')
     return render(request, 'profile.html', context)
