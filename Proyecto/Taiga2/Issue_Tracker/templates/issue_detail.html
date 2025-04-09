@@ -37,14 +37,15 @@
                     </div>
                 </div>
 
-                <!-- Formulari per modificar l'usuari assignat i l'estat -->
+                <!-- Formulari per modificar l'usuari assignat, l'estat i esborrar -->
                 <div class="card mb-4">
                     <div class="card-body">
-                        <h5 class="card-title">Actualitza l'Issue</h5>
+                        <h5 class="card-title">Actualitza o Esborra l'Issue</h5>
                         <form method="post">
                             {% csrf_token %}
                             {{ issue_form.as_p }}
                             <button type="submit" name="update_issue" class="btn btn-primary">Actualitzar</button>
+                            <button type="submit" name="delete_issue" class="btn btn-danger" onclick="return confirm('Estàs segur que vols esborrar aquest issue?');">Esborrar</button>
                         </form>
                     </div>
                 </div>
@@ -59,7 +60,7 @@
                             <ul class="list-group">
                                 {% for comment in issue.comments.all %}
                                     <li class="list-group-item">
-                                        <strong>{{ comment.Username }}</strong>: {{ comment.text }}
+                                        <strong>{{ comment.author.username }}</strong>: {{ comment.text }}
                                         <br><small class="text-muted">{{ comment.created_at }}</small>
                                     </li>
                                 {% endfor %}
