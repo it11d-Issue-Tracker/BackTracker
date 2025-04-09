@@ -7,7 +7,7 @@ from .models import Issue, User
 from .forms import CommentForm, IssueUpdateForm, IssueCreateForm
 
 
-
+@login_required()
 def issues_page(request):
 
         issues = Issue.objects.all().order_by('-created_at')
@@ -71,7 +71,7 @@ def issues_page(request):
             'users': users
         })
 
-
+@login_required
 def issue_detail(request, issue_id):
     issue = get_object_or_404(Issue, id_issue=issue_id)
 
@@ -103,3 +103,26 @@ def custom_login_view(request):
     if request.user.is_authenticated:
         return redirect('custom-issues')
     return render(request, 'login.html')
+
+def profile_view_id(request, userid):
+    user = get_object_or_404(User, userid)
+    active_tab = request.GET.get('tab', 'assigned')
+
+    assigned_issues = Issue.objects.filter(assigned_to=user)
+    watched_issues = Issue.objects.filter(watchers=user)
+    user_comments = user.comment_set.select_related('issue')
+
+    context = {
+        'user': user,
+        'active_tab': active_tab,
+        'assigned_count': assigned_issues.count(),
+        'watched_count': watched_issues.count(),
+        'comments_count': user_comments.count(),
+    }
+    if active_tab == 'assigned':
+        context['issues'] = assigned_issues.order_by('-updated_at')
+    elif active_tab == 'watched':
+        context['issues'] = watched_issues.order_by('-updated_at')
+    elif active_tab == 'comments':
+        context['comments'] = user_comments.order_by('-created_at')
+    return render(request, 'profile.html', context)

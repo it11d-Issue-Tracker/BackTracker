@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile Issues</title>
+    <link rel="stylesheet" href="css/profilestyle.css">
+</head>
+<body>
+    <div class="container">
+        <aside class="sidebar">
+            <img src="{{ user.avatar_url }}" alt="User Avatar" class="avatar">
+            <h2>{{ user.full_name }}</h2>
+            <p class="handle">@{{ user.username }}</p>
+            <div class="stats">
+                <p><strong>{{ assigned_count }}</strong> Open Assigned Issues</p>
+                <p><strong>{{ watched_count }}</strong> Watched Issues</p>
+                <p><strong>{{ comments_count }}</strong> Comments</p>
+            </div>
+            <p class="bio">{{ user.bio }}</p>
+            <form action="{% url 'edit_bio' %}" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <textarea name="bio">{{ user.bio }}</textarea>
+                <input type="file" name="avatar">
+                <button class="edit-button" type="submit">SAVE</button>
+            </form>
+        </aside>
+
+        <main class="main-content">
+            <nav class="tabs">
+                <a href="{% url 'assigned_issues' %}" class="tab {% if active_tab == 'assigned' %}selected{% endif %}">Open Assigned Issues</a>
+                <a href="{% url 'watched_issues' %}" class="tab {% if active_tab == 'watched' %}selected{% endif %}">Watched Issues</a>
+                <a href="{% url 'user_comments' %}" class="tab {% if active_tab == 'comments' %}selected{% endif %}">Comments</a>
+            </nav>
+
+            <section class="issues-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th><a href="?sort=type">T</a></th>
+                            <th><a href="?sort=severity">S</a></th>
+                            <th><a href="?sort=priority">P</a></th>
+                            <th><a href="?sort=number">Issue</a></th>
+                            <th><a href="?sort=status">Status</a></th>
+                            <th><a href="?sort=modified">Modified</a></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for issue in issues %}
+                        <tr>
+                            <td><span class="dot {{ issue.type_color }}"></span></td>
+                            <td><span class="dot {{ issue.severity_color }}"></span></td>
+                            <td><span class="dot {{ issue.priority_color }}"></span></td>
+                            <td>#{{ issue.number }} <a href="{% url 'issue_detail' issue.number %}">{{ issue.title }}</a></td>
+                            <td>{{ issue.status }}</td>
+                            <td>{{ issue.modified|date:"d M Y" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="6">No issues found.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </section>
+        </main>
+    </div>
+</body>
+</html>
