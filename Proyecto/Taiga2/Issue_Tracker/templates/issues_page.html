@@ -1,3 +1,4 @@
+{% load account %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,7 +11,16 @@
     <div class="container mt-5">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h1>Llista d'Issues</h1>
-            <div>
+            <div class="d-flex align-items-center">
+                {% if user.is_authenticated %}
+                    <span class="me-3">Hola, {% user_display user %}!</span>
+                    <form method="post" action="{% url 'account_logout' %}" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-danger btn-sm me-3">Cerrar Sesión</button>
+                    </form>
+                {% else %}
+                    <a href="{% url 'custom-login' %}" class="btn btn-success btn-sm me-3">Iniciar Sesión</a>
+                {% endif %}
                 <button class="btn btn-outline-primary me-2" data-bs-toggle="collapse" data-bs-target="#searchCollapse">
                     Cerca/Filtra
                 </button>
@@ -39,7 +49,7 @@
                     </div>
                     <div class="col-md-2">
                         <select name="priority_id" class="form-select">
-                            <option value="">Totes prioritats</option>
+                            <option value="">Totes les prioritats</option>
                             <option value="critical" {% if request.GET.priority_id == 'critical' %}selected{% endif %}>Critical</option>
                             <option value="high" {% if request.GET.priority_id == 'high' %}selected{% endif %}>High</option>
                             <option value="normal" {% if request.GET.priority_id == 'normal' %}selected{% endif %}>Normal</option>

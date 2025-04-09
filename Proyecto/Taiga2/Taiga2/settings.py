@@ -39,11 +39,16 @@ INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
+    'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken',
     'django_filters',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
 
 ]
 
@@ -52,7 +57,8 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',  # debe ir antes
+    'allauth.account.middleware.AccountMiddleware',             # aquí lo añades
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -97,7 +103,10 @@ REST_FRAMEWORK = {
         'rest_framework.filters.SearchFilter',
     ],
 }
-
+SITE_ID = 1
+SOCIALACCOUNT_LOGIN_ON_GET = True
+LOGIN_REDIRECT_URL = 'http://127.0.0.1:8000/api/custom-issues'
+LOGOUT_REDIRECT_URL = 'http://127.0.0.1:8000/api/custom-issues'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
