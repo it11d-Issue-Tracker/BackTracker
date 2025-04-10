@@ -5,7 +5,7 @@ from django.utils.timezone import now
 from django.contrib.auth.decorators import login_required
 from .models import *
 from django.contrib.auth.models import User
-from .forms import CommentForm, IssueUpdateForm, IssueCreateForm
+from .forms import *
 
 
 
@@ -14,14 +14,14 @@ def issues_page(request):
         issues = Issue.objects.all().order_by('-created_at')
         users = User.objects.all().order_by('username')
         status = request.GET.get('status')
-        priority_id = request.GET.get('priority_id')
+        priority = request.GET.get('priority')
         assigned_to = request.GET.get('assigned_to')
         created_by = request.GET.get('created_by')
 
         if status:
             issues = issues.filter(status=status)
-        if priority_id:
-            issues = issues.filter(priority_id=priority_id)
+        if priority:
+            issues = issues.filter(priority_id=priority)
         if assigned_to:
             issues = issues.filter(assigned_to__id=assigned_to)
         if created_by:
@@ -47,7 +47,7 @@ def issues_page(request):
                         Issue(
                             title=title,
                             status="new",
-                            priority_id="normal",
+                            priority="normal",
                             created_by=request.user,
                             deadline=now()
                         )
@@ -124,3 +124,39 @@ def custom_login_view(request):
     if request.user.is_authenticated:
         return redirect('custom-issues')
     return render(request, 'login.html')
+
+
+
+def settings_view(request):
+    statuses = Status.objects.all()
+    priorities = Priority.objects.all()
+
+    if request.method == 'POST':
+        if 'add_status' in request.POST:
+            status_form = StatusForm(request.POST)
+            if status_form.is_valid():
+                status_form.save()
+                return redirect('settings')
+        elif 'add_priority' in request.POST:
+            priority_form = PriorityForm(request.POST)
+            if priority_form.is_valid():
+                priority_form.save()
+                return redirect('settings')
+    else:
+        status_form = StatusForm()
+        priority_form = PriorityForm()
+
+    return render(request, 'settings.html', {
+        'statuses': statuses,
+        'priorities': priorities,
+        'status_form': status_form,
+        'priority_form': priority_form,
+    })
+
+def delete_status(request, status_id):
+    Status.objects.filter(id=status_id).delete()
+    return redirect('settings')
+
+def delete_priority(request, priority_id):
+    Priority.objects.filter(id=priority_id).delete()
+    return redirect('settings')
