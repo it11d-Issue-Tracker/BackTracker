@@ -1,7 +1,7 @@
 from django.db import IntegrityError
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
-from Issue_Tracker.models import Issue, Comment, Attachment, Watcher
+from Issue_Tracker.models import *
 
 User = get_user_model()
 
@@ -33,8 +33,8 @@ class IssueSerializer(serializers.ModelSerializer):
     created_by = serializers.CharField(source='created_by.username', read_only=True)
     assigned_to = serializers.CharField(source='assigned_to.username', read_only=True)
 
-    status = serializers.ChoiceField(choices=Issue.STATUS_CHOICES)
-    priority_id = serializers.ChoiceField(choices=Issue.PRIORITY_CHOICES)
+    status = serializers.CharField(source='status.id', read_only=True)
+    priority = serializers.CharField(source='priority.id', read_only=True)
 
     class Meta:
         model = Issue
@@ -42,7 +42,7 @@ class IssueSerializer(serializers.ModelSerializer):
             'title',
             'description',
             'status',
-            'priority_id',
+            'priority',
             'assigned_to',
             'deadline',
             'created_by',
@@ -54,6 +54,8 @@ class IssueSerializer(serializers.ModelSerializer):
 class IssueDetailSerializer(serializers.ModelSerializer):
     created_by = serializers.CharField(source='author.username', read_only=True)
     comments = CommentSerializer(many=True, read_only=True)
+    status = serializers.CharField(source='status.id', read_only=True)
+    priority = serializers.CharField(source='priority.id', read_only=True)
 
     class Meta:
         model = Issue

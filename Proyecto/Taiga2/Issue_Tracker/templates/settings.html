@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Configuració</title>
+</head>
+<body>
+    <h1>Configuració</h1>
+
+    <h2>Status</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ status_form.as_p }}
+        <button type="submit" name="add_status">Afegir Status</button>
+    </form>
+    <ul>
+        {% for status in statuses %}
+            <li>{{ status.id }} <a href="{% url 'delete_status' status.id %}">Eliminar</a></li>
+        {% endfor %}
+    </ul>
+
+    <h2>Prioritats</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ priority_form.as_p }}
+        <button type="submit" name="add_priority">Afegir Prioritat</button>
+    </form>
+    <ul>
+        {% for priority in priorities %}
+            <li>{{ priority.id }} <a href="{% url 'delete_priority' priority.id %}">Eliminar</a></li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

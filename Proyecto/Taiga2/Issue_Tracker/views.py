@@ -4,8 +4,9 @@ from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.timezone import now
 from django.contrib.auth.decorators import login_required
-from .models import Issue, User
-from .forms import CommentForm, IssueUpdateForm, IssueCreateForm
+from .models import *
+from django.contrib.auth.models import User
+from .forms import *
 
 
 @login_required()
@@ -14,14 +15,14 @@ def issues_page(request):
         issues = Issue.objects.all().order_by('-created_at')
         users = User.objects.all().order_by('username')
         status = request.GET.get('status')
-        priority_id = request.GET.get('priority_id')
+        priority = request.GET.get('priority')
         assigned_to = request.GET.get('assigned_to')
         created_by = request.GET.get('created_by')
 
         if status:
             issues = issues.filter(status=status)
-        if priority_id:
-            issues = issues.filter(priority_id=priority_id)
+        if priority:
+            issues = issues.filter(priority_id=priority)
         if assigned_to:
             issues = issues.filter(assigned_to__id=assigned_to)
         if created_by:
@@ -47,7 +48,7 @@ def issues_page(request):
                         Issue(
                             title=title,
                             status="new",
-                            priority_id="normal",
+                            priority="normal",
                             created_by=request.user,
                             deadline=now()
                         )
@@ -75,13 +76,42 @@ def issues_page(request):
 @login_required
 def issue_detail(request, issue_id):
     issue = get_object_or_404(Issue, id_issue=issue_id)
-
+    attachment_form = AttachmentForm()
     if request.method == 'POST':
-        if 'update_issue' in request.POST:
+        if 'delete_issue' in request.POST:
+            issue.delete()
+            messages.success(request, 'L\'issue s\'ha esborrat correctament.')
+            return redirect('custom-issues')
+        elif 'update_issue' in request.POST:
             issue_form = IssueUpdateForm(request.POST, instance=issue)
             if issue_form.is_valid():
                 issue_form.save()
                 return redirect('issue-detail', issue_id=issue_id)
+        if 'file' in request.FILES:
+            attachment_form = AttachmentForm(request.POST, request.FILES)
+            if attachment_form.is_valid():
+                attachment = attachment_form.save(commit=False)
+                attachment.issue = issue
+                attachment.save()
+                print("✅ Archivo subido a:", attachment.file.url)
+                return redirect('issue-detail', issue_id=issue_id)
+        if 'delete_attachment' in request.POST:
+            attachment_id = request.POST.get('attachment_id')
+            attachment = Attachment.objects.get(attachment_id=attachment_id)
+            attachment.delete()
+            return redirect('issue-detail', issue_id=issue_id)
+
+        elif 'action' in request.POST:
+            action = request.POST.get('action')
+            user_id = request.POST.get('user_id')
+            user = get_object_or_404(User, id=user_id)
+
+            if action == 'add':
+                Watcher.objects.get_or_create(issue=issue, user=user)
+            elif action == 'remove':
+                Watcher.objects.filter(issue=issue, user=user).delete()
+
+            return redirect('issue-detail', issue_id=issue_id)
         else:
             comment_form = CommentForm(request.POST)
             if comment_form.is_valid():
@@ -94,16 +124,61 @@ def issue_detail(request, issue_id):
         issue_form = IssueUpdateForm(instance=issue)
         comment_form = CommentForm()
 
+    watchers = Watcher.objects.filter(issue=issue)
+    attachments = issue.attachments.all()
+    users = User.objects.all()
+
     return render(request, 'issue_detail.html', {
         'issue': issue,
         'issue_form': issue_form,
-        'comment_form': comment_form
+        'comment_form': comment_form,
+        'watchers': watchers,
+        'users': users,
+        'attachments': attachments,
+        'attachment_form': attachment_form
+
     })
 
 def custom_login_view(request):
     if request.user.is_authenticated:
         return redirect('custom-issues')
     return render(request, 'login.html')
+
+
+
+def settings_view(request):
+    statuses = Status.objects.all()
+    priorities = Priority.objects.all()
+
+    if request.method == 'POST':
+        if 'add_status' in request.POST:
+            status_form = StatusForm(request.POST)
+            if status_form.is_valid():
+                status_form.save()
+                return redirect('settings')
+        elif 'add_priority' in request.POST:
+            priority_form = PriorityForm(request.POST)
+            if priority_form.is_valid():
+                priority_form.save()
+                return redirect('settings')
+    else:
+        status_form = StatusForm()
+        priority_form = PriorityForm()
+
+    return render(request, 'settings.html', {
+        'statuses': statuses,
+        'priorities': priorities,
+        'status_form': status_form,
+        'priority_form': priority_form,
+    })
+
+def delete_status(request, status_id):
+    Status.objects.filter(id=status_id).delete()
+    return redirect('settings')
+
+def delete_priority(request, priority_id):
+    Priority.objects.filter(id=priority_id).delete()
+    return redirect('settings')
 
 @login_required
 def profile_view_id(request, userid=None):

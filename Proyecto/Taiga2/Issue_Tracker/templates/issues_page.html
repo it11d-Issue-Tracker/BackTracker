@@ -8,141 +8,155 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
 </head>
 <body>
-    <div class="container mt-5">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1>Llista d'Issues</h1>
-            <div class="d-flex align-items-center">
-                {% if user.is_authenticated %}
-                    <span class="me-3">Hola, {% user_display user %}!</span>
-                    <form method="post" action="{% url 'account_logout' %}" style="display: inline;">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-outline-danger btn-sm me-3">Cerrar Sesión</button>
-                    </form>
-                {% else %}
-                    <a href="{% url 'custom-login' %}" class="btn btn-success btn-sm me-3">Iniciar Sesión</a>
-                {% endif %}
-                <button class="btn btn-outline-primary me-2" data-bs-toggle="collapse" data-bs-target="#searchCollapse">
-                    Cerca/Filtra
-                </button>
-                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#bulkModal">
-                    Bulk_Insert
-                </button>
-            </div>
-        </div>
+    <div class="container-fluid mt-5">
+        <div class="row">
+            <!-- Contenido principal (tabla y filtros) - ocupa 9 columnas -->
+            <div class="col-md-9">
+                <div class="container">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h1>Llista d'Issues</h1>
+                        <div class="d-flex align-items-center">
+                            {% if user.is_authenticated %}
+                                <span class="me-3">Hola, {% user_display user %}!</span>
+                                <form method="post" action="{% url 'account_logout' %}" style="display: inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-outline-danger btn-sm me-3">Cerrar Sesión</button>
+                                </form>
+                            {% else %}
+                                <a href="{% url 'custom-login' %}" class="btn btn-success btn-sm me-3">Iniciar Sesión</a>
+                            {% endif %}
+                            <button class="btn btn-outline-primary me-2" data-bs-toggle="collapse" data-bs-target="#searchCollapse">
+                                Cerca/Filtra
+                            </button>
+                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#bulkModal">
+                                Bulk_Insert
+                            </button>
+                        </div>
+                    </div>
 
-        <!-- Secció de cerca i filtre (col·lapsable) -->
-        <div class="collapse mb-4" id="searchCollapse">
-            <div class="card card-body">
-                <form method="get" class="row g-3">
-                    <div class="col-md-4">
-                        <input type="text" name="search" class="form-control" placeholder="Cerca per títol o descripció" value="{{ request.GET.search }}">
+                    <!-- Secció de cerca i filtre (col·lapsable) -->
+                    <div class="collapse mb-4" id="searchCollapse">
+                        <div class="card card-body">
+                            <form method="get" class="row g-3">
+                                <div class="col-md-4">
+                                    <input type="text" name="search" class="form-control" placeholder="Cerca per títol o descripció" value="{{ request.GET.search }}">
+                                </div>
+                                <div class="col-md-2">
+                                    <select name="status" class="form-select">
+                                        <option value="">Tots els estats</option>
+                                        <option value="new" {% if request.GET.status == 'new' %}selected{% endif %}>New</option>
+                                        <option value="in_progress" {% if request.GET.status == 'in_progress' %}selected{% endif %}>In Progress</option>
+                                        <option value="ready_for_test" {% if request.GET.status == 'ready_for_test' %}selected{% endif %}>Ready For Test</option>
+                                        <option value="closed" {% if request.GET.status == 'closed' %}selected{% endif %}>Closed</option>
+                                        <option value="archived" {% if request.GET.status == 'archived' %}selected{% endif %}>Archived</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <select name="priority_id" class="form-select">
+                                        <option value="">Totes les prioritats</option>
+                                        <option value="critical" {% if request.GET.priority_id == 'critical' %}selected{% endif %}>Critical</option>
+                                        <option value="high" {% if request.GET.priority_id == 'high' %}selected{% endif %}>High</option>
+                                        <option value="normal" {% if request.GET.priority_id == 'normal' %}selected{% endif %}>Normal</option>
+                                        <option value="low" {% if request.GET.priority_id == 'low' %}selected{% endif %}>Low</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <select name="created_by" class="form-select">
+                                        <option value="">Tots els creadors</option>
+                                        {% for user in users %}
+                                        <option value="{{ user.id }}"
+                                                {% if request.GET.created_by == user.id|stringformat:"s" %}selected{% endif %}>
+                                            {{ user.username }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <select name="assigned_to" class="form-select">
+                                        <option value="">Tots els assignats</option>
+                                        {% for user in users %}
+                                        <option value="{{ user.id }}"
+                                                {% if request.GET.assigned_to == user.id|stringformat:"s" %}selected{% endif %}>
+                                            {{ user.username }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <button type="submit" class="btn btn-primary w-100">Aplica</button>
+                                    <a href="." class="btn btn-outline-secondary w-100 mt-2">Neteja</a>
+                                </div>
+                            </form>
+                        </div>
                     </div>
-                    <div class="col-md-2">
-                        <select name="status" class="form-select">
-                            <option value="">Tots els estats</option>
-                            <option value="new" {% if request.GET.status == 'new' %}selected{% endif %}>New</option>
-                            <option value="in_progress" {% if request.GET.status == 'in_progress' %}selected{% endif %}>In Progress</option>
-                            <option value="ready_for_test" {% if request.GET.status == 'ready_for_test' %}selected{% endif %}>Ready For Test</option>
-                            <option value="closed" {% if request.GET.status == 'closed' %}selected{% endif %}>Closed</option>
-                            <option value="archived" {% if request.GET.status == 'archived' %}selected{% endif %}>Archived</option>
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <select name="priority_id" class="form-select">
-                            <option value="">Totes les prioritats</option>
-                            <option value="critical" {% if request.GET.priority_id == 'critical' %}selected{% endif %}>Critical</option>
-                            <option value="high" {% if request.GET.priority_id == 'high' %}selected{% endif %}>High</option>
-                            <option value="normal" {% if request.GET.priority_id == 'normal' %}selected{% endif %}>Normal</option>
-                            <option value="low" {% if request.GET.priority_id == 'low' %}selected{% endif %}>Low</option>
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <select name="created_by" class="form-select">
-                            <option value="">Tots els creadors</option>
-                            {% for user in users %}
-                            <option value="{{ user.id }}"
-                                    {% if request.GET.created_by == user.id|stringformat:"s" %}selected{% endif %}>
-                                {{ user.username }}
-                            </option>
+
+                    <!-- Tabla de issues -->
+                    <table class="table table-hover align-middle">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Títol</th>
+                                <th>Estat</th>
+                                <th>Prioritat</th>
+                                <th>Creador</th>
+                                <th>Assignat a</th>
+                                <th>Data creació</th>
+                                <th>Accions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for issue in issues %}
+                            <tr>
+                                <td>{{ issue.title }}</td>
+                                <td>
+                                    <span class="badge
+                                        {% if issue.status_id == 'new' %}bg-secondary
+                                        {% elif issue.status_id == 'in_progress' %}bg-primary
+                                        {% elif issue.status_id == 'closed' %}bg-success
+                                        {% else %}bg-warning{% endif %}">
+                                        {{ issue.status.id}}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge
+                                        {% if issue.priority_id == 'high' %}bg-danger
+                                        {% elif issue.priority_id == 'normal' %}bg-info
+                                        {% else %}bg-warning{% endif %}">
+                                        {{ issue.priority.id }}
+                                    </span>
+                                </td>
+                                <td>{{ issue.created_by.username }}</td>
+                                <td>
+                                    {% if issue.assigned_to %}
+                                        {{ issue.assigned_to.username }}
+                                    {% else %}
+                                        <span class="text-muted">No assignat</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ issue.created_at|date:"d/m/Y H:i" }}</td>
+                                <td>
+                                    <a href="{% url 'issue-detail' issue.id_issue %}" class="btn btn-primary btn-sm">Detalls</a>
+                                </td>
+                            </tr>
                             {% endfor %}
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <select name="assigned_to" class="form-select">
-                            <option value="">Tots els assignats</option>
-                            {% for user in users %}
-                            <option value="{{ user.id }}"
-                                    {% if request.GET.assigned_to == user.id|stringformat:"s" %}selected{% endif %}>
-                                {{ user.username }}
-                            </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <button type="submit" class="btn btn-primary w-100">Aplica</button>
-                        <a href="." class="btn btn-outline-secondary w-100 mt-2">Neteja</a>
-                    </div>
-                </form>
+                        </tbody>
+                    </table>
+                </div>
             </div>
-        </div>
 
-        <table class="table table-hover align-middle">
-            <thead class="table-dark">
-                <tr>
-                    <th>Títol</th>
-                    <th>Estat</th>
-                    <th>Prioritat</th>
-                    <th>Creador</th>
-                    <th>Assignat a</th>
-                    <th>Accions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for issue in issues %}
-                <tr>
-                    <td>{{ issue.title }}</td>
-                    <td>
-                        <span class="badge
-                            {% if issue.status == 'new' %}bg-secondary
-                            {% elif issue.status == 'in_progress' %}bg-primary
-                            {% elif issue.status == 'closed' %}bg-success
-                            {% else %}bg-warning{% endif %}">
-                            {{ issue.get_status_display }}
-                        </span>
-                    </td>
-                    <td>
-                        <span class="badge
-                            {% if issue.priority_id == 'high' %}bg-danger
-                            {% elif issue.priority_id == 'normal' %}bg-info
-                            {% else %}bg-warning{% endif %}">
-                            {{ issue.get_priority_id_display }}
-                        </span>
-                    </td>
-                    <td>{{ issue.created_by.username }}</td>
-                    <td>
-                        {% if issue.assigned_to %}
-                            {{ issue.assigned_to.username }}
-                        {% else %}
-                            <span class="text-muted">No assignat</span>
-                        {% endif %}
-                    </td>
-                    <td>
-                        <a href="{% url 'issue-detail' issue.id_issue %}" class="btn btn-primary btn-sm">Detalls</a>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-
-        <!-- Formulari per crear un nou issue -->
-        <div class="card mt-4">
-            <div class="card-body">
-                <h5 class="card-title">Crea un nou Issue</h5>
-                <form method="post">
-                    {% csrf_token %}
-                    {{ form.as_p }}
-                    <button type="submit" class="btn btn-primary">Crear</button>
-                </form>
+            <!-- Formulari per crear un nou issue - ocupa 3 columnas a la derecha -->
+            <div class="col-md-3 border-start">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header bg-light">
+                        <h5 class="card-title mb-0">Crea un nou Issue</h5>
+                    </div>
+                    <div class="card-body">
+                        <form method="post">
+                            {% csrf_token %}
+                            {{ form.as_p }}
+                            <button type="submit" class="btn btn-primary w-100 mt-3">Crear</button>
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

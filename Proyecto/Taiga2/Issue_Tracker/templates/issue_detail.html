@@ -8,13 +8,11 @@
 </head>
 <body>
     <div class="container mt-5">
-        <!-- Encabezado -->
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h1>{{ issue.title }}</h1>
             <a href="{% url 'custom-issues' %}" class="btn btn-secondary">Tornar a la llista</a>
         </div>
 
-        <!-- Detalls de l'Issue -->
         <div class="row">
             <div class="col-md-8">
                 <div class="card mb-4">
@@ -37,21 +35,88 @@
                     </div>
                 </div>
 
-                <!-- Formulari per modificar l'usuari assignat i l'estat -->
                 <div class="card mb-4">
                     <div class="card-body">
-                        <h5 class="card-title">Actualitza l'Issue</h5>
+                        <h5 class="card-title">Actualitza o Esborra l'Issue</h5>
                         <form method="post">
                             {% csrf_token %}
                             {{ issue_form.as_p }}
                             <button type="submit" name="update_issue" class="btn btn-primary">Actualitzar</button>
+                            <button type="submit" name="delete_issue" class="btn btn-danger" onclick="return confirm('Estàs segur que vols esborrar aquest issue?');">Esborrar</button>
                         </form>
                     </div>
                 </div>
             </div>
 
-            <!-- Comentaris -->
             <div class="col-md-4">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Watchers</h5>
+                        <ul class="list-group mb-3">
+                            {% for watcher in watchers %}
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    {{ watcher.user.username }}
+                                    <form method="post" style="display:inline;">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="action" value="remove">
+                                        <input type="hidden" name="user_id" value="{{ watcher.user.id }}">
+                                        <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
+                                    </form>
+                                </li>
+                            {% endfor %}
+                        </ul>
+
+                        <h6>Afegir Watcher</h6>
+                        <form method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="add">
+                            <div class="input-group">
+                                <select name="user_id" class="form-select">
+                                    {% for user in users %}
+                                        <option value="{{ user.id }}">{{ user.username }}</option>
+                                    {% endfor %}
+                                </select>
+                                <button type="submit" class="btn btn-primary">Afegir</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Formulario para añadir attachment -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Afegeix un attachment</h5>
+                        <form method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            {{ attachment_form.as_p }}
+                            <button type="submit" class="btn btn-primary">+</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Listado de attachments -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Attachments</h5>
+                        {% if attachments %}
+                            <ul class="list-group">
+                                {% for attachment in attachments %}
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <a href="{{ attachment.file.url }}" target="_blank">{{ attachment.file.name }}</a>
+                                        <form method="post" style="display:inline;">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="attachment_id" value="{{ attachment.attachment_id }}">
+                                            <button type="submit" name="delete_attachment" class="btn btn-danger btn-sm">Eliminar</button>
+                                        </form>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p class="text-muted">No hi ha attachments.</p>
+                        {% endif %}
+                    </div>
+                </div>
+
                 <div class="card mb-4">
                     <div class="card-body">
                         <h5 class="card-title">Comentaris</h5>
@@ -59,7 +124,7 @@
                             <ul class="list-group">
                                 {% for comment in issue.comments.all %}
                                     <li class="list-group-item">
-                                        <strong>{{ comment.Username }}</strong>: {{ comment.text }}
+                                        <strong>{{ comment.author.username }}</strong>: {{ comment.text }}
                                         <br><small class="text-muted">{{ comment.created_at }}</small>
                                     </li>
                                 {% endfor %}
@@ -70,7 +135,6 @@
                     </div>
                 </div>
 
-                <!-- Formulari per afegir comentaris -->
                 <div class="card mb-4">
                     <div class="card-body">
                         <h5 class="card-title">Afegeix un comentari</h5>
