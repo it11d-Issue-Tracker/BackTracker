@@ -23,10 +23,20 @@ class IssueCreateForm(forms.ModelForm):
         widget=forms.Select(attrs={'class': 'form-select'}),
         label="Prioritat"
     )
+    severity = forms.ModelChoiceField(
+        queryset=Severity.objects.all(),
+        widget=forms.Select(attrs={'class': 'form-select'}),
+        label="Severitat"
+    )
+    type = forms.ModelChoiceField(
+        queryset=Type.objects.all(),
+        widget=forms.Select(attrs={'class': 'form-select'}),
+        label="Tipus"
+    )
 
     class Meta:
         model = Issue
-        fields = ['title', 'description', 'status', 'priority', 'assigned_to', 'deadline']
+        fields = ['title', 'description', 'status', 'priority', 'assigned_to', 'deadline', 'severity', 'type']
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Títol'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Descripció'}),
@@ -71,10 +81,20 @@ class IssueUpdateForm(forms.ModelForm):
         widget=forms.Select(attrs={'class': 'form-select'}),
         label="Prioritat"
     )
+    severity = forms.ModelChoiceField(
+        queryset=Severity.objects.all(),
+        widget=forms.Select(attrs={'class': 'form-select'}),
+        label="Severitat"
+    )
+    type = forms.ModelChoiceField(
+        queryset=Type.objects.all(),
+        widget=forms.Select(attrs={'class': 'form-select'}),
+        label="Tipus"
+    )
 
     class Meta:
         model = Issue
-        fields = ['assigned_to', 'status', 'priority']
+        fields = ['assigned_to', 'status', 'priority', 'severity', 'type', 'deadline']
 
 
 
@@ -104,4 +124,26 @@ class PriorityForm(forms.ModelForm):
         }
         labels = {
             'id': 'Prioritat',
+        }
+
+class SeverityForm(forms.ModelForm):
+    class Meta:
+        model = Severity
+        fields = ['id']
+        widgets = {
+            'id': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nom de la severitat'}),
+        }
+        labels = {
+            'id': 'Severitat',
+        }
+
+class TypeForm(forms.ModelForm):
+    class Meta:
+        model = Type
+        fields = ['id']
+        widgets = {
+            'id': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nom del tipus'}),
+        }
+        labels = {
+            'id': 'Tipus',
         }

@@ -20,6 +20,9 @@ urlpatterns = [
     path('settings/delete_status/<str:status_id>/', delete_status, name='delete_status'),
     path('settings/delete_priority/<str:priority_id>/', delete_priority, name='delete_priority'),
 
+    path('settings/delete_severity/<str:severity_id>/', delete_severity, name='delete_severity'),
+    path('settings/delete_type/<str:type_id>/', delete_type, name='delete_type'),
+
 ]
 
 if settings.DEBUG:
