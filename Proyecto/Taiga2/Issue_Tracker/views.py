@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.timezone import now
 from django.contrib.auth.decorators import login_required
-from .models import Issue, User
+from .models import *
 from django.contrib.auth.models import User
 from .forms import CommentForm, IssueUpdateForm, IssueCreateForm
 
@@ -80,12 +80,23 @@ def issue_detail(request, issue_id):
         if 'delete_issue' in request.POST:
             issue.delete()
             messages.success(request, 'L\'issue s\'ha esborrat correctament.')
-            return redirect('custom-issues')  # Redirigeix a la llista d'issuesdo
-        if 'update_issue' in request.POST:
+            return redirect('custom-issues')
+        elif 'update_issue' in request.POST:
             issue_form = IssueUpdateForm(request.POST, instance=issue)
             if issue_form.is_valid():
                 issue_form.save()
                 return redirect('issue-detail', issue_id=issue_id)
+        elif 'action' in request.POST:
+            action = request.POST.get('action')
+            user_id = request.POST.get('user_id')
+            user = get_object_or_404(User, id=user_id)
+
+            if action == 'add':
+                Watcher.objects.get_or_create(issue=issue, user=user)
+            elif action == 'remove':
+                Watcher.objects.filter(issue=issue, user=user).delete()
+
+            return redirect('issue-detail', issue_id=issue_id)
         else:
             comment_form = CommentForm(request.POST)
             if comment_form.is_valid():
@@ -98,10 +109,15 @@ def issue_detail(request, issue_id):
         issue_form = IssueUpdateForm(instance=issue)
         comment_form = CommentForm()
 
+    watchers = Watcher.objects.filter(issue=issue)
+    users = User.objects.all()
+
     return render(request, 'issue_detail.html', {
         'issue': issue,
         'issue_form': issue_form,
-        'comment_form': comment_form
+        'comment_form': comment_form,
+        'watchers': watchers,
+        'users': users
     })
 
 def custom_login_view(request):
