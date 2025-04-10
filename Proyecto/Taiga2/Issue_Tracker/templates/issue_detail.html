@@ -8,13 +8,11 @@
 </head>
 <body>
     <div class="container mt-5">
-        <!-- Encabezado -->
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h1>{{ issue.title }}</h1>
             <a href="{% url 'custom-issues' %}" class="btn btn-secondary">Tornar a la llista</a>
         </div>
 
-        <!-- Detalls de l'Issue -->
         <div class="row">
             <div class="col-md-8">
                 <div class="card mb-4">
@@ -37,7 +35,6 @@
                     </div>
                 </div>
 
-                <!-- Formulari per modificar l'usuari assignat, l'estat i esborrar -->
                 <div class="card mb-4">
                     <div class="card-body">
                         <h5 class="card-title">Actualitza o Esborra l'Issue</h5>
@@ -51,8 +48,40 @@
                 </div>
             </div>
 
-            <!-- Comentaris -->
             <div class="col-md-4">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Watchers</h5>
+                        <ul class="list-group mb-3">
+                            {% for watcher in watchers %}
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    {{ watcher.user.username }}
+                                    <form method="post" style="display:inline;">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="action" value="remove">
+                                        <input type="hidden" name="user_id" value="{{ watcher.user.id }}">
+                                        <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
+                                    </form>
+                                </li>
+                            {% endfor %}
+                        </ul>
+
+                        <h6>Afegir Watcher</h6>
+                        <form method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="add">
+                            <div class="input-group">
+                                <select name="user_id" class="form-select">
+                                    {% for user in users %}
+                                        <option value="{{ user.id }}">{{ user.username }}</option>
+                                    {% endfor %}
+                                </select>
+                                <button type="submit" class="btn btn-primary">Afegir</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
                 <div class="card mb-4">
                     <div class="card-body">
                         <h5 class="card-title">Comentaris</h5>
@@ -71,7 +100,6 @@
                     </div>
                 </div>
 
-                <!-- Formulari per afegir comentaris -->
                 <div class="card mb-4">
                     <div class="card-body">
                         <h5 class="card-title">Afegeix un comentari</h5>

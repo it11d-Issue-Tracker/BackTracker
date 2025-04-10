@@ -58,10 +58,16 @@ class Attachment(models.Model):
 
 
 class Watcher(models.Model):
-    issue = models.ForeignKey(Issue, on_delete=models.CASCADE, related_name='watchers')
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='watchers')
+    id = models.AutoField(primary_key=True)
+    issue = models.ForeignKey('Issue', on_delete=models.CASCADE, db_column='issue_id', related_name='watchers')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, db_column='user_id', related_name='watching_issues')
 
     class Meta:
         db_table = 'watchers'
         unique_together = ('issue', 'user')
+        indexes = [
+            models.Index(fields=['issue'], name='watchers_issue_i_a06e44_idx'),
+            models.Index(fields=['user'], name='watchers_user_id_1d8812_idx'),
+        ]
+
 
