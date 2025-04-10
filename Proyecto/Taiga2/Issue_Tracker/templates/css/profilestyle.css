@@ -161,3 +161,32 @@ a {
 a:hover {
     text-decoration: underline;
 }
+
+.comments-section {
+    margin-top: 20px;
+    padding: 10px;
+}
+
+.comment {
+    background-color: #fdfdfd;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+}
+
+.comment p {
+    margin: 5px 0;
+}
+
+.comment-body {
+    font-style: italic;
+    color: #444;
+}
+
+.comment-date {
+    font-size: 0.85em;
+    color: #888;
+    margin-top: 8px;
+}

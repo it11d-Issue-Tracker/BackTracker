@@ -183,15 +183,17 @@ def delete_priority(request, priority_id):
 @login_required
 def profile_view_id(request, userid=None):
     if userid is not None:
-        perfil = get_object_or_404(User, id_user=userid)
+        user = get_object_or_404(User, id=userid)
     else:
-        perfil = request.perfil
+        user = request.user
+
+    perfil = user.perfil
 
     active_tab = request.GET.get('tab', 'assigned')
 
-    assigned_issues = Issue.objects.filter(assigned_to=perfil)
-    watched_issues = Issue.objects.filter(watchers=perfil)
-    user_comments = perfil.comment_set.select_related('issue')
+    assigned_issues = Issue.objects.filter(assigned_to=user)
+    watched_issues = Issue.objects.filter(watchers=user)
+    user_comments = user.comments.select_related('issue')
 
     sort_by = request.GET.get('sort', '-updated_at')
 
@@ -199,7 +201,9 @@ def profile_view_id(request, userid=None):
     user_avatar_url = perfil.avatar_url or 'https://www.ole.com.ar/images/2024/10/28/58Ww_RX2d_400x400__1.jpg'
 
     context = {
-        'user': perfil,
+        'user':user,
+        'perfil': perfil,
+        'full_name': f"{user.first_name} {user.last_name}",
         'user_avatar_url': user_avatar_url,
         'active_tab': active_tab,
         'assigned_count': assigned_issues.count(),
@@ -220,7 +224,7 @@ def edit_bio(request):
         bio = request.POST.get('bio')
         avatar_url = request.POST.get('avatar_url')
 
-        perfil = request.perfil
+        perfil = request.user.perfil
         if bio:
             perfil.bio = bio
         if avatar_url and is_valid_image_url(avatar_url):

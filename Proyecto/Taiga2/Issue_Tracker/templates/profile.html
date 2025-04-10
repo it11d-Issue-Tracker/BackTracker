@@ -10,22 +10,22 @@
     <div class="container">
         <aside class="sidebar">
             <img src="{{ user_avatar_url }}" alt="User Avatar" class="avatar">
-            <h2>{{ user.full_name }}</h2>
-            <p class="handle">@{{ user.username }}</p>
+            <h2>{{ full_name }}</h2>
+            <p class="handle">@{{ perfil.username }}</p>
             <div class="stats">
                 <p><strong>{{ assigned_count }}</strong> Open Assigned Issues</p>
                 <p><strong>{{ watched_count }}</strong> Watched Issues</p>
                 <p><strong>{{ comments_count }}</strong> Comments</p>
             </div>
-            <p class="bio">{{ user.bio }}</p>
-            <form action="{% url 'edit_bio' %}" method="post" enctype="multipart/form-data">
+            <p class="bio">{{ perfil.bio }}</p>
+            {% if request.user == user %}
+            <form action="{% url 'edit_bio' %}" method="post">
                 {% csrf_token %}
-                <textarea name="bio">{{ user.bio }}</textarea>
+                <textarea name="bio">{{ perfil.bio }}</textarea>
                 <input type="url" name="avatar_url">
-                {% if request.user == user %}
                 <button class="edit-button" type="submit">SAVE</button>
-                {% endif %}
             </form>
+            {% endif %}
         </aside>
 
         <main class="main-content">
@@ -35,13 +35,14 @@
             <a href="?tab=comments" class="tab {% if active_tab == 'comments' %}selected{% endif %}">Comments</a>
           </nav>
 
+            {% if active_tab == 'assigned' or active_tab == 'watched' %}
             <section class="issues-table">
                 <table>
                     <thead>
                         <tr>
                             <!--<th><a href="?sort=type">T</a></th>
                             <th><a href="?sort=severity">S</a></th>-->
-                            <th><a href="?sort=priority_id">P</a></th>
+                            <th><a href="?sort=priority__orden">P</a></th>
                             <th><a href="?sort=id_issue">Issue</a></th>
                             <th><a href="?sort=status">Status</a></th>
                             <th><a href="?sort=updated_at">Modified</a></th>
@@ -50,8 +51,8 @@
                     <tbody>
                         {% for issue in issues %}
                         <tr>
-                            <td><span class="dot {{ issue.type_color }}"></span></td>
-                            <td><span class="dot {{ issue.severity_color }}"></span></td>
+                            <!--<td><span class="dot {{ issue.type_color }}"></span></td>
+                            <td><span class="dot {{ issue.severity_color }}"></span></td>-->
                             <td><span class="dot {{ issue.priority_color }}"></span></td>
                             <td>#{{ issue.id_issue }} {{ issue.title }}</td>
                             <td>{{ issue.status }}</td>
@@ -63,6 +64,21 @@
                     </tbody>
                 </table>
             </section>
+            {% elif active_tab == 'comments' %}
+            <section class="comments-section">
+                {% if comments %}
+                    {% for comment in comments %}
+                    <div class="comment">
+                        <p><strong>Issue #{{ comment.issue.id_issue }}</strong></p>
+                        <p class="comment-body">{{ comment.text }}</p>
+                        <p class="comment-date">{{ comment.created_at|date:"d M Y - H:i" }}</p>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p>No comments found.</p>
+                {% endif %}
+            </section>
+            {% endif %}
         </main>
     </div>
 </body>
