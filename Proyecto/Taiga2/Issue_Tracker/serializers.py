@@ -35,6 +35,8 @@ class IssueSerializer(serializers.ModelSerializer):
 
     status = serializers.CharField(source='status.id', read_only=True)
     priority = serializers.CharField(source='priority.id', read_only=True)
+    severity = serializers.CharField(source='severity.id', read_only=True)
+    type = serializers.CharField(source='type.id', read_only=True)
 
     class Meta:
         model = Issue
@@ -48,6 +50,8 @@ class IssueSerializer(serializers.ModelSerializer):
             'created_by',
             'created_at',
             'updated_at',
+            'severity',
+            'type',
 
         ]
 
@@ -56,6 +60,9 @@ class IssueDetailSerializer(serializers.ModelSerializer):
     comments = CommentSerializer(many=True, read_only=True)
     status = serializers.CharField(source='status.id', read_only=True)
     priority = serializers.CharField(source='priority.id', read_only=True)
+    severity = serializers.CharField(source='severity.id', read_only=True)
+    type = serializers.CharField(source='type.id', read_only=True)
+
 
     class Meta:
         model = Issue

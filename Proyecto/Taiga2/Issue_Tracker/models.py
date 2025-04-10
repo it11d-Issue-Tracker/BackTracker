@@ -23,6 +23,25 @@ class Priority(models.Model):
     class Meta:
         db_table = 'priority'
 
+class Severity(models.Model):
+    id = models.CharField(max_length=100, primary_key=True)
+
+    def __str__(self):
+        return self.id
+
+    class Meta:
+        db_table = 'severity'
+
+
+class Type(models.Model):
+    id = models.CharField(max_length=100, primary_key=True)
+
+    def __str__(self):
+        return self.id
+
+    class Meta:
+        db_table = 'type'
+
 
 
 
@@ -39,6 +58,8 @@ class Issue(models.Model):
         deadline = models.DateField(null=True, blank=True)
         created_at = models.DateTimeField(auto_now_add=True)
         updated_at = models.DateTimeField(auto_now=True)
+        severity = models.ForeignKey('Severity', on_delete=models.SET_NULL, null=True, related_name='issues')
+        type = models.ForeignKey('Type', on_delete=models.SET_NULL, null=True, related_name='issues')
 
         class Meta:
             db_table = 'issue'

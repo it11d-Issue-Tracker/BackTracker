@@ -36,7 +36,7 @@
                 </div>
 
                     <!-- Secció de cerca i filtre (col·lapsable) -->
-                    <div class="collapse mb-4" id="searchCollapse">
+                   <div class="collapse mb-4" id="searchCollapse">
                         <div class="card card-body">
                             <form method="get" class="row g-3">
                                 <div class="col-md-4">
@@ -53,12 +53,35 @@
                                     </select>
                                 </div>
                                 <div class="col-md-2">
-                                    <select name="priority_id" class="form-select">
+                                    <select name="priority" class="form-select">
                                         <option value="">Totes les prioritats</option>
-                                        <option value="critical" {% if request.GET.priority_id == 'critical' %}selected{% endif %}>Critical</option>
-                                        <option value="high" {% if request.GET.priority_id == 'high' %}selected{% endif %}>High</option>
-                                        <option value="normal" {% if request.GET.priority_id == 'normal' %}selected{% endif %}>Normal</option>
-                                        <option value="low" {% if request.GET.priority_id == 'low' %}selected{% endif %}>Low</option>
+                                        <option value="critical" {% if request.GET.priority == 'critical' %}selected{% endif %}>Critical</option>
+                                        <option value="high" {% if request.GET.priority == 'high' %}selected{% endif %}>High</option>
+                                        <option value="normal" {% if request.GET.priority == 'normal' %}selected{% endif %}>Normal</option>
+                                        <option value="low" {% if request.GET.priority == 'low' %}selected{% endif %}>Low</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <select name="severity" class="form-select">
+                                        <option value="">Totes les severitats</option>
+                                        <option value="blocker" {% if request.GET.severity == 'blocker' %}selected{% endif %}>Blocker</option>
+                                        <option value="critical" {% if request.GET.severity == 'critical' %}selected{% endif %}>Critical</option>
+                                        <option value="important" {% if request.GET.severity == 'important' %}selected{% endif %}>Important</option>
+                                        <option value="normal" {% if request.GET.severity == 'normal' %}selected{% endif %}>Normal</option>
+                                        <option value="minor" {% if request.GET.severity == 'minor' %}selected{% endif %}>Minor</option>
+                                        <option value="trivial" {% if request.GET.severity == 'trivial' %}selected{% endif %}>Trivial</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <select name="type" class="form-select">
+                                        <option value="">Tots els tipus</option>
+                                        <option value="bug" {% if request.GET.type == 'bug' %}selected{% endif %}>Bug</option>
+                                        <option value="feature" {% if request.GET.type == 'feature' %}selected{% endif %}>Feature</option>
+                                        <option value="task" {% if request.GET.type == 'task' %}selected{% endif %}>Task</option>
+                                        <option value="epic" {% if request.GET.type == 'epic' %}selected{% endif %}>Epic</option>
+                                        <option value="question" {% if request.GET.type == 'question' %}selected{% endif %}>Question</option>
+                                        <option value="enhancement" {% if request.GET.type == 'enhancement' %}selected{% endif %}>Enhancement</option>
+                                        <option value="documentation" {% if request.GET.type == 'documentation' %}selected{% endif %}>Documentation</option>
                                     </select>
                                 </div>
                                 <div class="col-md-2">
@@ -92,12 +115,15 @@
                     </div>
 
                     <!-- Tabla de issues -->
+                    <!-- Tabla de issues -->
                     <table class="table table-hover align-middle">
                         <thead class="table-dark">
                             <tr>
                                 <th>Títol</th>
                                 <th>Estat</th>
                                 <th>Prioritat</th>
+                                <th>Tipus</th>
+                                <th>Severitat</th>
                                 <th>Creador</th>
                                 <th>Assignat a</th>
                                 <th>Data creació</th>
@@ -123,6 +149,20 @@
                                         {% elif issue.priority_id == 'normal' %}bg-info
                                         {% else %}bg-warning{% endif %}">
                                         {{ issue.priority.id }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-dark">
+                                        {{ issue.type.id|default:"Sin tipo" }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge
+                                        {% if issue.severity_id == 'blocker' or issue.severity_id == 'critical' %}bg-danger
+                                        {% elif issue.severity_id == 'important' %}bg-warning
+                                        {% elif issue.severity_id == 'minor' or issue.severity_id == 'trivial' %}bg-info
+                                        {% else %}bg-secondary{% endif %}">
+                                        {{ issue.severity.id|default:"Sin severidad" }}
                                     </span>
                                 </td>
                                 <td>{{ issue.created_by.username }}</td>

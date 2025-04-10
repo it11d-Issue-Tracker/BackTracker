@@ -17,6 +17,8 @@ def issues_page(request):
         priority = request.GET.get('priority')
         assigned_to = request.GET.get('assigned_to')
         created_by = request.GET.get('created_by')
+        severity = request.GET.get('severity')
+        type = request.GET.get('type')
 
         if status:
             issues = issues.filter(status=status)
@@ -26,6 +28,10 @@ def issues_page(request):
             issues = issues.filter(assigned_to__id=assigned_to)
         if created_by:
             issues = issues.filter(created_by__id=created_by)
+        if severity:
+            issues = issues.filter(severity=severity)
+        if type:
+            issues = issues.filter(type=type)
 
 
         search_term = request.GET.get('search', '').strip()
@@ -146,6 +152,8 @@ def custom_login_view(request):
 def settings_view(request):
     statuses = Status.objects.all()
     priorities = Priority.objects.all()
+    severities = Severity.objects.all()
+    types = Type.objects.all()
 
     if request.method == 'POST':
         if 'add_status' in request.POST:
@@ -158,15 +166,32 @@ def settings_view(request):
             if priority_form.is_valid():
                 priority_form.save()
                 return redirect('settings')
+        elif 'add_severity' in request.POST:
+            severity_form = SeverityForm(request.POST)
+            if severity_form.is_valid():
+                severity_form.save()
+                return redirect('settings')
+        elif 'add_type' in request.POST:
+            type_form = TypeForm(request.POST)
+            if type_form.is_valid():
+                type_form.save()
+                return redirect('settings')
     else:
         status_form = StatusForm()
         priority_form = PriorityForm()
+        severity_form = SeverityForm()
+        type_form = TypeForm()
 
     return render(request, 'settings.html', {
         'statuses': statuses,
         'priorities': priorities,
+        'severities': severities,
+        'types': types,
+
         'status_form': status_form,
         'priority_form': priority_form,
+        'severity_form': severity_form,
+        'type_form': type_form,
     })
 
 def delete_status(request, status_id):
@@ -175,4 +200,12 @@ def delete_status(request, status_id):
 
 def delete_priority(request, priority_id):
     Priority.objects.filter(id=priority_id).delete()
+    return redirect('settings')
+
+def delete_severity(request, severity_id):
+    Severity.objects.filter(id=severity_id).delete()
+    return redirect('settings')
+
+def delete_type(request, type_id):
+    Type.objects.filter(id=type_id).delete()
     return redirect('settings')
