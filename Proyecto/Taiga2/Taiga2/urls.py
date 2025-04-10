@@ -1,39 +1,26 @@
 
 from django.contrib import admin
-from django.urls import path
+from django.conf import settings
+from django.conf.urls.static import static
 
 from django.urls import path, include
-from rest_framework.routers import DefaultRouter
-from Issue_Tracker.views import IssueViewSet
-from Issue_Tracker.views import issue_detail
-
-
-
-router = DefaultRouter()
-router.register(r'issues', IssueViewSet, basename='issue')
-
-
-custom_urlpatterns = [
-    path('issues/bulk-create/',
-         IssueViewSet.as_view({'post': 'bulk_create'}),
-         name='issue-bulk-create'),
-]
+from Issue_Tracker.views import *
 
 urlpatterns = [
     # Admin site
     path('admin/', admin.site.urls),
 
-    # API Authentication
-    path('api-auth/', include('rest_framework.urls')),
+    path('accounts/', include('allauth.urls')),
 
-    # DRF Router URLs
-    path('api/', include(router.urls)),
-
-    # Custom endpoints
-    path('api/', include(custom_urlpatterns)),
-
-    path('issues/search/', IssueViewSet.as_view({'get': 'search_issues', 'post': 'search_issues'}), name='issue-search'),
-
-    path('api/custom-issues/', IssueViewSet.issues_page, name='custom-issues'),
+    path('login/', custom_login_view, name='custom-login'),
+    path('api/custom-issues/', issues_page, name='custom-issues'),
     path('api/issue-detail/<int:issue_id>/', issue_detail, name='issue-detail'),
+
+    path('settings/', settings_view, name='settings'),
+    path('settings/delete_status/<str:status_id>/', delete_status, name='delete_status'),
+    path('settings/delete_priority/<str:priority_id>/', delete_priority, name='delete_priority'),
+
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
