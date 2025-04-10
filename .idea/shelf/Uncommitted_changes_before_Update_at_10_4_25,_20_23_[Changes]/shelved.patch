@@ -1,0 +1,17 @@
+Index: requirements.txt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+># Paquetes principales\nDjango==5.1.7\ndjango-environ==0.12.0\n\n# REST Framework\ndjangorestframework==3.15.1\ndjangorestframework-simplejwt==5.3.1  # Opcional para JWT\n\n# Autenticación\ndjango-allauth==0.58.2\ndj-rest-auth==4.0.1  # Para API auth\n\n# Base de datos\npsycopg2-binary==2.9.9\n\n# Filtros\ndjango-filter==23.5\n\n# Archivos estáticos\nwhitenoise==6.6.0\n\n# Servidor de producción\ngunicorn==21.2.0\n\n# Otros esenciales\nPillow==10.3.0  # Para manejo de imágenes\npython-decouple==3.8  # Para variables de entorno\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/requirements.txt b/requirements.txt
+--- a/requirements.txt	(revision 17cd189dc393a704b97762b92c7d8e94e8266262)
++++ b/requirements.txt	(date 1744309411499)
+@@ -24,4 +24,4 @@
+ 
+ # Otros esenciales
+ Pillow==10.3.0  # Para manejo de imágenes
+-python-decouple==3.8  # Para variables de entorno
++python-decouple==3.8  # Para variables de entorno
+\ No newline at end of file
