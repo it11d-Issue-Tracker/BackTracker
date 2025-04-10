@@ -46,8 +46,6 @@ def issues_page(request):
                     issues = [
                         Issue(
                             title=title,
-                            status="new",
-                            priority="normal",
                             created_by=request.user,
                             deadline=now()
                         )
