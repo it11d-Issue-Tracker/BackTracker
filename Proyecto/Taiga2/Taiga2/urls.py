@@ -1,5 +1,7 @@
 
 from django.contrib import admin
+from django.conf import settings
+from django.conf.urls.static import static
 
 from django.urls import path, include
 from Issue_Tracker.views import *
@@ -19,3 +21,6 @@ urlpatterns = [
     path('settings/delete_priority/<str:priority_id>/', delete_priority, name='delete_priority'),
 
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

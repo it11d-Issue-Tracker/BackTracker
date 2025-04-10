@@ -78,6 +78,10 @@ class IssueUpdateForm(forms.ModelForm):
 
 
 
+class AttachmentForm(forms.ModelForm):
+    class Meta:
+        model = Attachment
+        fields = ['file']
 
 class StatusForm(forms.ModelForm):
     class Meta:
