@@ -108,23 +108,23 @@ def custom_login_view(request):
 @login_required
 def profile_view_id(request, userid=None):
     if userid is not None:
-        user = get_object_or_404(User, id=userid)
+        perfil = get_object_or_404(User, id_user=userid)
     else:
-        user = request.user
+        perfil = request.perfil
 
     active_tab = request.GET.get('tab', 'assigned')
 
-    assigned_issues = Issue.objects.filter(assigned_to=user)
-    watched_issues = Issue.objects.filter(watchers=user)
-    user_comments = user.comment_set.select_related('issue')
+    assigned_issues = Issue.objects.filter(assigned_to=perfil)
+    watched_issues = Issue.objects.filter(watchers=perfil)
+    user_comments = perfil.comment_set.select_related('issue')
 
     sort_by = request.GET.get('sort', '-updated_at')
 
 
-    user_avatar_url = user.avatar_url or 'https://www.ole.com.ar/images/2024/10/28/58Ww_RX2d_400x400__1.jpg'
+    user_avatar_url = perfil.avatar_url or 'https://www.ole.com.ar/images/2024/10/28/58Ww_RX2d_400x400__1.jpg'
 
     context = {
-        'user': user,
+        'user': perfil,
         'user_avatar_url': user_avatar_url,
         'active_tab': active_tab,
         'assigned_count': assigned_issues.count(),
@@ -145,12 +145,12 @@ def edit_bio(request):
         bio = request.POST.get('bio')
         avatar_url = request.POST.get('avatar_url')
 
-        user = request.user
+        perfil = request.perfil
         if bio:
-            user.bio = bio
+            perfil.bio = bio
         if avatar_url and is_valid_image_url(avatar_url):
-            user.avatar_url = avatar_url
-        user.save()
+            perfil.avatar_url = avatar_url
+        perfil.save()
 
         return redirect('self-profile')
 
