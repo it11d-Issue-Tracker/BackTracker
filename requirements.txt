@@ -1,0 +1,13 @@
+# Paquetes esenciales
+Django==5.0.7
+gunicorn==21.2.0
+
+# Archivos estáticos
+whitenoise==6.6.0
+
+# PostgreSQL (necesario en Render)
+psycopg2-binary==2.9.9
+
+# Otros (si los usas)
+django-crispy-forms==2.1  # Si usas formularios
+pillow==10.3.0           # Para manejo de imágenes
