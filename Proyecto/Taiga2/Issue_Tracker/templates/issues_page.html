@@ -109,11 +109,11 @@
                                 <td>{{ issue.title }}</td>
                                 <td>
                                     <span class="badge
-                                        {% if issue.status == 'new' %}bg-secondary
-                                        {% elif issue.status == 'in_progress' %}bg-primary
-                                        {% elif issue.status == 'closed' %}bg-success
+                                        {% if issue.status_id == 'new' %}bg-secondary
+                                        {% elif issue.status_id == 'in_progress' %}bg-primary
+                                        {% elif issue.status_id == 'closed' %}bg-success
                                         {% else %}bg-warning{% endif %}">
-                                        {{ issue.get_status_display }}
+                                        {{ issue.status.id}}
                                     </span>
                                 </td>
                                 <td>
@@ -121,7 +121,7 @@
                                         {% if issue.priority_id == 'high' %}bg-danger
                                         {% elif issue.priority_id == 'normal' %}bg-info
                                         {% else %}bg-warning{% endif %}">
-                                        {{ issue.get_priority_id_display }}
+                                        {{ issue.priority.id }}
                                     </span>
                                 </td>
                                 <td>{{ issue.created_by.username }}</td>
