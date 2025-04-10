@@ -9,10 +9,10 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
-
+import os
 from pathlib import Path
 import environ
-import os
+
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -25,11 +25,21 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-5$ucnfiv#k5=4r_nu+w-phaeki8!co4gh!zqd$f^lll=3yc$o9'
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = []
-
+# Configuración de ALLOWED_HOSTS y seguridad
+if DEBUG:
+    # Configuración para desarrollo local
+    ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+else:
+    # Configuración para producción en Render
+    ALLOWED_HOSTS = [
+        'backtracker-3hat.onrender.com',
+        'www.backtracker-3hat.onrender.com'  # Opcional para versión con www
+    ]
+    RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+    if RENDER_EXTERNAL_HOSTNAME:
+        ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
 # Application definition
 
@@ -125,6 +135,8 @@ DATABASES = {
         'OPTIONS': {'sslmode': 'require'},
     }
 }
+
+
 
 
 
