@@ -25,21 +25,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-5$ucnfiv#k5=4r_nu+w-phaeki8!co4gh!zqd$f^lll=3yc$o9'
 
-DEBUG = os.environ.get('DEBUG', 'True') == 'True'
+DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 
-# Configuración de ALLOWED_HOSTS y seguridad
-if DEBUG:
-    # Configuración para desarrollo local
-    ALLOWED_HOSTS = ['localhost', '127.0.0.1']
-else:
-    # Configuración para producción en Render
-    ALLOWED_HOSTS = [
-        'backtracker-3hat.onrender.com',
-        'www.backtracker-3hat.onrender.com'  # Opcional para versión con www
-    ]
-    RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
-    if RENDER_EXTERNAL_HOSTNAME:
-        ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    'backtracker-3hat.onrender.com',
+    'www.backtracker-3hat.onrender.com'
+]
+RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
 # Application definition
 
