@@ -1,3 +1,4 @@
+from django.contrib.sites import requests
 from django.db.models import Q
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
@@ -104,8 +105,13 @@ def custom_login_view(request):
         return redirect('custom-issues')
     return render(request, 'login.html')
 
-def profile_view_id(request, userid):
-    user = get_object_or_404(User, id=userid)
+@login_required
+def profile_view_id(request, userid=None):
+    if userid is not None:
+        user = get_object_or_404(User, id=userid)
+    else:
+        user = request.user
+
     active_tab = request.GET.get('tab', 'assigned')
 
     assigned_issues = Issue.objects.filter(assigned_to=user)
@@ -114,8 +120,12 @@ def profile_view_id(request, userid):
 
     sort_by = request.GET.get('sort', '-updated_at')
 
+
+    user_avatar_url = user.avatar_url or 'https://www.ole.com.ar/images/2024/10/28/58Ww_RX2d_400x400__1.jpg'
+
     context = {
         'user': user,
+        'user_avatar_url': user_avatar_url,
         'active_tab': active_tab,
         'assigned_count': assigned_issues.count(),
         'watched_count': watched_issues.count(),
@@ -128,3 +138,29 @@ def profile_view_id(request, userid):
     elif active_tab == 'comments':
         context['comments'] = user_comments.order_by('-created_at')
     return render(request, 'profile.html', context)
+
+@login_required
+def edit_bio(request):
+    if request.method == 'POST':
+        bio = request.POST.get('bio')
+        avatar_url = request.POST.get('avatar_url')
+
+        user = request.user
+        if bio:
+            user.bio = bio
+        if avatar_url and is_valid_image_url(avatar_url):
+            user.avatar_url = avatar_url
+        user.save()
+
+        return redirect('self-profile')
+
+
+#requests hace petición a internet, no abusar mucho de ella, en un futuro cambiar
+#comprueba si una url es válida y si es una imagen
+def is_valid_image_url(url):
+    try:
+        response = requests.head(url, timeout=3)
+        content_type = response.headers.get('Content-Type', '')
+        return response.status_code == 200 and 'image' in content_type
+    except:
+        return False

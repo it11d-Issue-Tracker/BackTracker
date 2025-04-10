@@ -9,7 +9,7 @@
 <body>
     <div class="container">
         <aside class="sidebar">
-            <img src="{{ user.avatar_url }}" alt="User Avatar" class="avatar">
+            <img src="{{ user_avatar_url }}" alt="User Avatar" class="avatar">
             <h2>{{ user.full_name }}</h2>
             <p class="handle">@{{ user.username }}</p>
             <div class="stats">
@@ -21,17 +21,19 @@
             <form action="{% url 'edit_bio' %}" method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 <textarea name="bio">{{ user.bio }}</textarea>
-                <input type="file" name="avatar">
+                <input type="url" name="avatar_url">
+                {% if request.user == user %}
                 <button class="edit-button" type="submit">SAVE</button>
+                {% endif %}
             </form>
         </aside>
 
         <main class="main-content">
-            <nav class="tabs">
-                <a href="{% url 'assigned_issues' %}" class="tab {% if active_tab == 'assigned' %}selected{% endif %}">Open Assigned Issues</a>
-                <a href="{% url 'watched_issues' %}" class="tab {% if active_tab == 'watched' %}selected{% endif %}">Watched Issues</a>
-                <a href="{% url 'user_comments' %}" class="tab {% if active_tab == 'comments' %}selected{% endif %}">Comments</a>
-            </nav>
+          <nav class="tabs">
+            <a href="?tab=assigned" class="tab {% if active_tab == 'assigned' %}selected{% endif %}">Open Assigned Issues</a>
+            <a href="?tab=watched" class="tab {% if active_tab == 'watched' %}selected{% endif %}">Watched Issues</a>
+            <a href="?tab=comments" class="tab {% if active_tab == 'comments' %}selected{% endif %}">Comments</a>
+          </nav>
 
             <section class="issues-table">
                 <table>
@@ -51,7 +53,7 @@
                             <td><span class="dot {{ issue.type_color }}"></span></td>
                             <td><span class="dot {{ issue.severity_color }}"></span></td>
                             <td><span class="dot {{ issue.priority_color }}"></span></td>
-                            <td>#{{ issue.number }} <a href="{% url 'issue_detail' issue.number %}">{{ issue.title }}</a></td>
+                            <td>#{{ issue.id_issue }} {{ issue.title }}</td>
                             <td>{{ issue.status }}</td>
                             <td>{{ issue.updated_at|date:"d M Y" }}</td>
                         </tr>

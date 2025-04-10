@@ -37,8 +37,11 @@ class Issue(models.Model):
     id_issue = models.AutoField(primary_key=True, editable=False)
     title = models.CharField(max_length=200)
     description = models.TextField()
-    status = models.CharField(max_length=100, choices=STATUS_CHOICES, default='new')
-    priority_id = models.CharField(max_length=100, choices=PRIORITY_CHOICES, default='normal')
+    status = models.IntegerField(choices=STATUS_CHOICES, default=1)
+    priority_id = models.IntegerField(choices=PRIORITY_CHOICES, default=2)
+    serverity = models.IntegerField(choices=TYPE_CHOICES, default=3)
+    type = models.IntegerField(choices=TYPE_CHOICES, default=1)
+
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, db_column='created_by', to_field='id', related_name='issues')
     assigned_to = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='assigned_issues', db_column='assigned_to')
     deadline = models.DateField(null=True, blank=True)
