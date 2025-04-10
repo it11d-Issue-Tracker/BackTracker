@@ -2,8 +2,8 @@
 from django.contrib import admin
 from django.conf import settings
 from django.conf.urls.static import static
-
-from django.urls import path, include
+from django.views.static import serve
+from django.urls import path, include, re_path
 from Issue_Tracker.views import *
 
 urlpatterns = [
@@ -20,6 +20,11 @@ urlpatterns = [
     path('settings/delete_status/<str:status_id>/', delete_status, name='delete_status'),
     path('settings/delete_priority/<str:priority_id>/', delete_priority, name='delete_priority'),
 
+]
+urlpatterns += [
+    re_path(r'^media/(?P<path>.*)$', serve, {
+        'document_root': settings.MEDIA_ROOT,
+    }),
 ]
 
 if settings.DEBUG:

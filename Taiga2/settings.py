@@ -177,3 +177,9 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+if not DEBUG:
+    # Permite servir archivos media en producción (solución temporal)
+    MIDDLEWARE.insert(1, 'django.middleware.security.SecurityMiddleware')
+    # Asegura permisos
+    FILE_UPLOAD_PERMISSIONS = 0o644
