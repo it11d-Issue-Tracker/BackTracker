@@ -16,31 +16,40 @@ class Status(models.Model):
 
 class Priority(models.Model):
     id = models.CharField(max_length=100, primary_key=True)
+    orden = models.PositiveIntegerField(unique=True)
+    color = models.CharField(max_length=10, unique=True)
 
     def __str__(self):
         return self.id
 
     class Meta:
         db_table = 'priority'
+        ordering = ['orden']
 
 class Severity(models.Model):
     id = models.CharField(max_length=100, primary_key=True)
+    orden = models.PositiveIntegerField(unique=True)
+    color = models.CharField(max_length=10, unique=True)
 
     def __str__(self):
         return self.id
 
     class Meta:
         db_table = 'severity'
+        ordering = ['orden']
 
 
 class Type(models.Model):
     id = models.CharField(max_length=100, primary_key=True)
+    orden = models.PositiveIntegerField(unique=True)
+    color = models.CharField(max_length=10, unique=True)
 
     def __str__(self):
         return self.id
 
     class Meta:
         db_table = 'type'
+        ordering = ['orden']
 
 
 
@@ -63,6 +72,18 @@ class Issue(models.Model):
 
         class Meta:
             db_table = 'issue'
+
+        @property
+        def priority_color(self):
+            return self.priority.color if self.priority else 'gray'
+
+        @property
+        def severity_color(self):
+            return self.severity.color if self.severity else 'gray'
+
+        @property
+        def type_color(self):
+            return self.type.color if self.type else 'gray'
 
 
 class Comment(models.Model):
@@ -102,4 +123,18 @@ class Watcher(models.Model):
             models.Index(fields=['user'], name='watchers_user_id_1d8812_idx'),
         ]
 
+class Perfil(models.Model):
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        primary_key=True,  # esto es importante para que sea la clave primaria
+        db_column='id_user',  #mapea nombre de la columna en la base de datos
+        related_name='perfil'
+    )
+    avatar_url = models.URLField(blank=True, null=True)
+    bio = models.TextField(blank=True, null=True)
+    username = models.CharField(max_length=100, unique=True)
+
+    class Meta:
+        db_table = 'perfils'
 

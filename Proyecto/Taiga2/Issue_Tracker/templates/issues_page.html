@@ -165,10 +165,16 @@
                                         {{ issue.severity.id|default:"Sin severidad" }}
                                     </span>
                                 </td>
-                                <td>{{ issue.created_by.username }}</td>
+                                <td>
+                                    <a href="{% url 'profile' issue.created_by.id %}">
+                                        {{ issue.created_by.username }}
+                                    </a>
+                                </td>
                                 <td>
                                     {% if issue.assigned_to %}
-                                        {{ issue.assigned_to.username }}
+                                        <a href="{% url 'profile' issue.assigned_to.id %}">
+                                            {{ issue.assigned_to.username }}
+                                        </a>
                                     {% else %}
                                         <span class="text-muted">No assignat</span>
                                     {% endif %}

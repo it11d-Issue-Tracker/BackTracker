@@ -1,3 +1,4 @@
+from django.contrib.sites import requests
 from django.db.models import Q
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
@@ -8,7 +9,7 @@ from django.contrib.auth.models import User
 from .forms import *
 
 
-
+@login_required()
 def issues_page(request):
 
         issues = Issue.objects.all().order_by('-created_at')
@@ -76,7 +77,7 @@ def issues_page(request):
             'users': users
         })
 
-
+@login_required
 def issue_detail(request, issue_id):
     issue = get_object_or_404(Issue, id_issue=issue_id)
     attachment_form = AttachmentForm()
@@ -209,3 +210,67 @@ def delete_severity(request, severity_id):
 def delete_type(request, type_id):
     Type.objects.filter(id=type_id).delete()
     return redirect('settings')
+
+@login_required
+def profile_view_id(request, userid=None):
+    if userid is not None:
+        user = get_object_or_404(User, id=userid)
+    else:
+        user = request.user
+
+    perfil = user.perfil
+
+    active_tab = request.GET.get('tab', 'assigned')
+
+    assigned_issues = Issue.objects.filter(assigned_to=user)
+    watched_issues = Issue.objects.filter(watchers__user=user)
+    user_comments = user.comments.select_related('issue')
+
+    sort_by = request.GET.get('sort', '-updated_at')
+
+
+    user_avatar_url = perfil.avatar_url or 'https://www.ole.com.ar/images/2024/10/28/58Ww_RX2d_400x400__1.jpg'
+
+    context = {
+        'user':user,
+        'perfil': perfil,
+        'full_name': f"{user.first_name} {user.last_name}",
+        'user_avatar_url': user_avatar_url,
+        'active_tab': active_tab,
+        'assigned_count': assigned_issues.count(),
+        'watched_count': watched_issues.count(),
+        'comments_count': user_comments.count(),
+    }
+    if active_tab == 'assigned':
+        context['issues'] = assigned_issues.order_by(sort_by)
+    elif active_tab == 'watched':
+        context['issues'] = watched_issues.order_by(sort_by)
+    elif active_tab == 'comments':
+        context['comments'] = user_comments.order_by('-created_at')
+    return render(request, 'profile.html', context)
+
+@login_required
+def edit_bio(request):
+    if request.method == 'POST':
+        bio = request.POST.get('bio')
+        avatar_url = request.POST.get('avatar_url')
+
+        perfil = request.user.perfil
+        if bio:
+            perfil.bio = bio
+        if avatar_url: # and is_valid_image_url(avatar_url):
+            perfil.avatar_url = avatar_url
+        perfil.save()
+
+        return redirect('self-profile')
+
+
+#requests hace petición a internet, no abusar mucho de ella, en un futuro cambiar
+#comprueba si una url es válida y si es una imagen
+def is_valid_image_url(url):
+    try:
+        response = requests.get(url, stream=True, timeout=5)
+        content_type = response.headers.get('Content-Type', '')
+        return response.status_code == 200 and 'image' in content_type
+    except:
+        return False
