@@ -16,6 +16,7 @@ urlpatterns = [
 
     path('accounts/', include('allauth.urls')),
 
+    path('login', custom_login_view, name='custom-login'),
     path('login/', custom_login_view, name='custom-login'),
     path('api/custom-issues/', issues_page, name='custom-issues'),
     path('api/issue-detail/<int:issue_id>/', issue_detail, name='issue-detail'),
