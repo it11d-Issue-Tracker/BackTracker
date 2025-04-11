@@ -39,12 +39,21 @@
 
                 <div class="card mb-4">
                     <div class="card-body">
-                        <h5 class="card-title">Actualitza o Esborra l'Issue</h5>
+                        <h5 class="card-title">Actualitza l'Issue</h5>
                         <form method="post">
                             {% csrf_token %}
                             {{ issue_form.as_p }}
                             <button type="submit" name="update_issue" class="btn btn-primary">Actualitzar</button>
-                            <button type="submit" name="delete_issue" class="btn btn-danger" onclick="return confirm('Estàs segur que vols esborrar aquest issue?');">Esborrar</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Esborra l'Issue</h5>
+                        <form method="post" onsubmit="return confirm('Estàs segur que vols esborrar aquest issue?');">
+                            {% csrf_token %}
+                            <button type="submit" name="delete_issue" class="btn btn-danger">Esborrar</button>
                         </form>
                     </div>
                 </div>
