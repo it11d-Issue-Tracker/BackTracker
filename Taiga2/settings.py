@@ -9,9 +9,11 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
-import os
+
+
 from pathlib import Path
 import environ
+import os
 
 
 
@@ -27,6 +29,7 @@ SECRET_KEY = 'django-insecure-5$ucnfiv#k5=4r_nu+w-phaeki8!co4gh!zqd$f^lll=3yc$o9
 
 DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 
+
 ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
@@ -36,6 +39,7 @@ ALLOWED_HOSTS = [
 RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+
 
 # Application definition
 
@@ -64,8 +68,10 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',  # debe ir antes
-    'allauth.account.middleware.AccountMiddleware',             # aquí lo añades
+
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
+
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -116,10 +122,12 @@ REST_FRAMEWORK = {
         'rest_framework.filters.SearchFilter',
     ],
 }
-SITE_ID = 1
+
+SITE_ID = 2
 SOCIALACCOUNT_LOGIN_ON_GET = True
-LOGIN_REDIRECT_URL = 'http://127.0.0.1:8000/api/custom-issues'
-LOGOUT_REDIRECT_URL = 'http://127.0.0.1:8000/api/custom-issues'
+LOGIN_REDIRECT_URL = 'https://backtracker-3hat.onrender.com/api/custom-issues'
+LOGOUT_REDIRECT_URL = 'https://backtracker-3hat.onrender.com/login'
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -131,8 +139,6 @@ DATABASES = {
         'OPTIONS': {'sslmode': 'require'},
     }
 }
-
-
 
 
 
@@ -168,6 +174,12 @@ USE_I18N = True
 USE_TZ = True
 
 
+#ruta al directorio de archivos estáticos
+#MEDIA_URL = '/media/'
+#MEDIA_ROOT = BASE_DIR / 'media'
+
+
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
@@ -178,8 +190,10 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+
 if not DEBUG:
     # Permite servir archivos media en producción (solución temporal)
     MIDDLEWARE.insert(1, 'django.middleware.security.SecurityMiddleware')
     # Asegura permisos
     FILE_UPLOAD_PERMISSIONS = 0o644
+

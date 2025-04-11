@@ -21,12 +21,19 @@
                         <p class="card-text">{{ issue.description|default:"No hi ha descripció disponible." }}</p>
                     </div>
                 </div>
+
+
                 <div class="card mb-4">
+
                     <div class="card-body">
                         <h5 class="card-title">Detalls</h5>
                         <ul class="list-group list-group-flush">
                             <li class="list-group-item"><strong>Estat:</strong> {{ issue.status }}</li>
-                            <li class="list-group-item"><strong>Prioritat:</strong> {{ issue.priority_id }}</li>
+
+                            <li class="list-group-item"><strong>Prioritat:</strong> {{ issue.priority }}</li>
+                            <li class="list-group-item"><strong>Severitat:</strong> {{ issue.severity }}</li>
+                            <li class="list-group-item"><strong>Tipus:</strong> {{ issue.type }}</li>
+
                             <li class="list-group-item"><strong>Assignat a:</strong> {{ issue.assigned_to|default:"No assignat" }}</li>
                             <li class="list-group-item"><strong>Creat per:</strong> {{ issue.created_by }}</li>
                             <li class="list-group-item"><strong>Data de creació:</strong> {{ issue.created_at }}</li>
@@ -37,12 +44,25 @@
 
                 <div class="card mb-4">
                     <div class="card-body">
-                        <h5 class="card-title">Actualitza o Esborra l'Issue</h5>
+
+                        <h5 class="card-title">Actualitza l'Issue</h5>
+
                         <form method="post">
                             {% csrf_token %}
                             {{ issue_form.as_p }}
                             <button type="submit" name="update_issue" class="btn btn-primary">Actualitzar</button>
-                            <button type="submit" name="delete_issue" class="btn btn-danger" onclick="return confirm('Estàs segur que vols esborrar aquest issue?');">Esborrar</button>
+
+                                                    </form>
+                    </div>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Esborra l'Issue</h5>
+                        <form method="post" onsubmit="return confirm('Estàs segur que vols esborrar aquest issue?');">
+                            {% csrf_token %}
+                            <button type="submit" name="delete_issue" class="btn btn-danger">Esborrar</button>
+
                         </form>
                     </div>
                 </div>

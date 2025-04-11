@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile Issues</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            background-color: #f6f6f9;
+            color: #333;
+        }
+
+        .container {
+            display: flex;
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 20px;
+            gap: 20px;
+        }
+
+        .sidebar {
+            width: 260px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 0 8px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+
+        .avatar {
+            width: 100%;
+            border-radius: 10px;
+            object-fit: cover;
+        }
+
+        .sidebar h2 {
+            margin-top: 15px;
+            margin-bottom: 5px;
+            font-size: 1.4em;
+        }
+
+        .handle {
+            color: #888;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+        }
+
+        .stats p {
+            font-size: 0.9em;
+            margin: 5px 0;
+        }
+
+        .bio {
+            font-size: 0.9em;
+            margin: 15px 0;
+            color: #555;
+        }
+
+        .edit-button, form button {
+            background-color: #2de2c9;
+            color: white;
+            border: none;
+            padding: 10px;
+            margin-top: 10px;
+            width: 100%;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+
+        .edit-button:hover, form button:hover {
+            background-color: #22c1aa;
+        }
+
+        form textarea {
+            width: 100%;
+            height: 60px;
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            margin-top: 10px;
+            font-family: inherit;
+        }
+
+        form input[type="file"] {
+            margin-top: 10px;
+            display: block;
+        }
+
+        .main-content {
+            flex: 1;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 0 8px rgba(0,0,0,0.05);
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #e0e0e0;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 12px 20px;
+            text-decoration: none;
+            color: #555;
+            font-weight: bold;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab:hover {
+            color: #000;
+        }
+
+        .tab.selected {
+            border-bottom: 3px solid #555;
+            color: #000;
+        }
+
+        .issues-table table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95em;
+        }
+
+        .issues-table th, .issues-table td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #eee;
+            text-align: left;
+        }
+
+        .issues-table th a {
+            color: #333;
+            text-decoration: none;
+        }
+
+        .issues-table th a:hover {
+            text-decoration: underline;
+        }
+
+        .dot {
+            height: 12px;
+            width: 12px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .dot.purple { background-color: #9b59b6; }
+        .dot.green { background-color: #2ecc71; }
+        .dot.red { background-color: #e74c3c; }
+        .dot.orange { background-color: #f39c12; }
+        .dot.gray { background-color: #95a5a6; }
+        .dot.yellow { background-color: #f1c40f; }
+
+        a {
+            color: #0073e6;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .comments-section {
+            margin-top: 20px;
+            padding: 10px;
+        }
+
+        .comment {
+            background-color: #fdfdfd;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+        }
+
+        .comment p {
+            margin: 5px 0;
+        }
+
+        .comment-body {
+            font-style: italic;
+            color: #444;
+        }
+
+        .comment-date {
+            font-size: 0.85em;
+            color: #888;
+            margin-top: 8px;
+        }
+
+        .edit-profile-form {
+        text-align: left;
+        margin-top: 15px;
+        }
+
+        .edit-profile-form .form-group {
+            margin-bottom: 15px;
+        }
+
+        .edit-profile-form label {
+            display: block;
+            font-size: 0.85em;
+            color: #555;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .edit-profile-form input[type="url"] {
+            width: 100%;
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-family: inherit;
+        }
+
+        .back-button {
+        display: inline-block;
+        margin-top: 15px;
+        background-color: #ddd;
+        color: #333;
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-weight: bold;
+        text-decoration: none;
+        transition: background-color 0.3s ease;
+        }
+
+        .back-button:hover {
+            background-color: #ccc;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <aside class="sidebar">
+            <img src="{{ user_avatar_url }}" alt="User Avatar" class="avatar">
+            <h2>{{ full_name }}</h2>
+            <p class="handle">@{{ perfil.username }}</p>
+            <div class="stats">
+                <p><strong>{{ assigned_count }}</strong> Open Assigned Issues</p>
+                <p><strong>{{ watched_count }}</strong> Watched Issues</p>
+                <p><strong>{{ comments_count }}</strong> Comments</p>
+            </div>
+            <p class="bio">{{ perfil.bio }}</p>
+            {% if request.user == user %}
+            <form action="{% url 'edit_bio' %}" method="post" class="edit-profile-form">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="bio">Bio</label>
+                    <textarea id="bio" name="bio" placeholder="sobre ti">{{ perfil.bio }}</textarea>
+                </div>
+                <div class="form-group">
+                    <label for="avatar_url">Avatar URL</label>
+                    <input type="url" id="avatar_url" name="avatar_url" placeholder="https://example.com/avatar.jpg">
+                </div>
+                <button class="edit-button" type="submit">SAVE</button>
+            </form>
+            {% endif %}
+            <a href="{% url 'custom-issues' %}" class="back-button">← Torna al lobby</a>
+        </aside>
+
+        <main class="main-content">
+          <nav class="tabs">
+            <a href="?tab=assigned" class="tab {% if active_tab == 'assigned' %}selected{% endif %}">Open Assigned Issues</a>
+            <a href="?tab=watched" class="tab {% if active_tab == 'watched' %}selected{% endif %}">Watched Issues</a>
+            <a href="?tab=comments" class="tab {% if active_tab == 'comments' %}selected{% endif %}">Comments</a>
+          </nav>
+
+            {% if active_tab == 'assigned' or active_tab == 'watched' %}
+            <section class="issues-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th><a href="?sort=type">T</a></th>
+                            <th><a href="?sort=severity">S</a></th>
+                            <th><a href="?sort=priority__orden">P</a></th>
+                            <th><a href="?sort=id_issue">Issue</a></th>
+                            <th><a href="?sort=status">Status</a></th>
+                            <th><a href="?sort=updated_at">Modified</a></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for issue in issues %}
+                        <tr>
+                            <td><span class="dot" style="background-color: {{ issue.type_color }};"></span></td>
+                            <td><span class="dot" style="background-color: {{ issue.severity_color }};"></span></td>
+                            <td><span class="dot" style="background-color: {{ issue.priority_color }};"></span></td>
+                            <td>#{{ issue.id_issue }} {{ issue.title }}</td>
+                            <td>{{ issue.status }}</td>
+                            <td>{{ issue.updated_at|date:"d M Y" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="6">No issues found.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </section>
+            {% elif active_tab == 'comments' %}
+            <section class="comments-section">
+                {% if comments %}
+                    {% for comment in comments %}
+                    <div class="comment">
+                        <p><strong>Issue #{{ comment.issue.id_issue }}</strong></p>
+                        <p class="comment-body">{{ comment.text }}</p>
+                        <p class="comment-date">{{ comment.created_at|date:"d M Y - H:i" }}</p>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p>No comments found.</p>
+                {% endif %}
+            </section>
+            {% endif %}
+        </main>
+    </div>
+</body>
+</html>

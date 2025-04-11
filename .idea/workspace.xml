@@ -4,6 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
+
     <list default="true" id="35cfb925-6873-4c34-aab0-d022aa40f25e" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/Taiga2/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/Taiga2/settings.py" afterDir="false" />
     </list>
@@ -100,4 +101,5 @@
       </breakpoints>
     </breakpoint-manager>
   </component>
+
 </project>
