@@ -124,7 +124,6 @@ REST_FRAMEWORK = {
 }
 
 SITE_ID = 2
-SOCIALACCOUNT_LOGIN_ON_GET = True
 LOGIN_REDIRECT_URL = 'https://backtracker-3hat.onrender.com/api/custom-issues'
 LOGOUT_REDIRECT_URL = 'https://backtracker-3hat.onrender.com/login'
 
@@ -174,9 +173,11 @@ USE_I18N = True
 USE_TZ = True
 
 
-#ruta al directorio de archivos estáticos
-#MEDIA_URL = '/media/'
-#MEDIA_ROOT = BASE_DIR / 'media'
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
 
 
 
@@ -192,8 +193,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 if not DEBUG:
-    # Permite servir archivos media en producción (solución temporal)
+
     MIDDLEWARE.insert(1, 'django.middleware.security.SecurityMiddleware')
-    # Asegura permisos
+
     FILE_UPLOAD_PERMISSIONS = 0o644
 
