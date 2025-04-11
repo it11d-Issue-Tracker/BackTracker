@@ -38,6 +38,7 @@ class IssueSerializer(serializers.ModelSerializer):
     severity = serializers.CharField(source='severity.id', read_only=True)
     type = serializers.CharField(source='type.id', read_only=True)
 
+
     class Meta:
         model = Issue
         fields = [
@@ -50,8 +51,10 @@ class IssueSerializer(serializers.ModelSerializer):
             'created_by',
             'created_at',
             'updated_at',
+
             'severity',
             'type',
+
 
         ]
 
@@ -62,6 +65,7 @@ class IssueDetailSerializer(serializers.ModelSerializer):
     priority = serializers.CharField(source='priority.id', read_only=True)
     severity = serializers.CharField(source='severity.id', read_only=True)
     type = serializers.CharField(source='type.id', read_only=True)
+
 
 
     class Meta:

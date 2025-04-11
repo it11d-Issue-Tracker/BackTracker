@@ -16,8 +16,10 @@ class Status(models.Model):
 
 class Priority(models.Model):
     id = models.CharField(max_length=100, primary_key=True)
+
     orden = models.PositiveIntegerField(unique=True)
     color = models.CharField(max_length=10, unique=True)
+
 
     def __str__(self):
         return self.id
@@ -54,6 +56,7 @@ class Type(models.Model):
 
 
 
+
 class Issue(models.Model):
         id_issue = models.AutoField(primary_key=True, editable=False)
         title = models.CharField(max_length=200)
@@ -67,11 +70,14 @@ class Issue(models.Model):
         deadline = models.DateField(null=True, blank=True)
         created_at = models.DateTimeField(auto_now_add=True)
         updated_at = models.DateTimeField(auto_now=True)
+
         severity = models.ForeignKey('Severity', on_delete=models.SET_NULL, null=True, related_name='issues')
         type = models.ForeignKey('Type', on_delete=models.SET_NULL, null=True, related_name='issues')
 
+
         class Meta:
             db_table = 'issue'
+
 
         @property
         def priority_color(self):
@@ -84,6 +90,7 @@ class Issue(models.Model):
         @property
         def type_color(self):
             return self.type.color if self.type else 'gray'
+
 
 
 class Comment(models.Model):
@@ -137,4 +144,5 @@ class Perfil(models.Model):
 
     class Meta:
         db_table = 'perfils'
+
 

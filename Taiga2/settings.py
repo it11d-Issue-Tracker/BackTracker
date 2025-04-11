@@ -10,9 +10,11 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
+
 from pathlib import Path
 import environ
 import os
+
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -25,8 +27,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-5$ucnfiv#k5=4r_nu+w-phaeki8!co4gh!zqd$f^lll=3yc$o9'
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
+
 
 ALLOWED_HOSTS = [
     'localhost',
@@ -66,8 +68,10 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'allauth.account.middleware.AccountMiddleware',
+
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -118,10 +122,12 @@ REST_FRAMEWORK = {
         'rest_framework.filters.SearchFilter',
     ],
 }
+
 SITE_ID = 2
 SOCIALACCOUNT_LOGIN_ON_GET = True
 LOGIN_REDIRECT_URL = 'https://backtracker-3hat.onrender.com/api/custom-issues'
 LOGOUT_REDIRECT_URL = 'https://backtracker-3hat.onrender.com/login'
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -167,9 +173,11 @@ USE_I18N = True
 
 USE_TZ = True
 
+
 #ruta al directorio de archivos estáticos
 #MEDIA_URL = '/media/'
 #MEDIA_ROOT = BASE_DIR / 'media'
+
 
 
 # Static files (CSS, JavaScript, Images)
@@ -181,3 +189,11 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+if not DEBUG:
+    # Permite servir archivos media en producción (solución temporal)
+    MIDDLEWARE.insert(1, 'django.middleware.security.SecurityMiddleware')
+    # Asegura permisos
+    FILE_UPLOAD_PERMISSIONS = 0o644
+

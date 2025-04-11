@@ -23,6 +23,7 @@ class IssueCreateForm(forms.ModelForm):
         widget=forms.Select(attrs={'class': 'form-select'}),
         label="Prioritat"
     )
+
     severity = forms.ModelChoiceField(
         queryset=Severity.objects.all(),
         widget=forms.Select(attrs={'class': 'form-select'}),
@@ -37,6 +38,7 @@ class IssueCreateForm(forms.ModelForm):
     class Meta:
         model = Issue
         fields = ['title', 'description', 'status', 'priority', 'assigned_to', 'deadline', 'severity', 'type']
+
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Títol'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Descripció'}),
@@ -81,6 +83,7 @@ class IssueUpdateForm(forms.ModelForm):
         widget=forms.Select(attrs={'class': 'form-select'}),
         label="Prioritat"
     )
+
     severity = forms.ModelChoiceField(
         queryset=Severity.objects.all(),
         widget=forms.Select(attrs={'class': 'form-select'}),
@@ -124,6 +127,7 @@ class PriorityForm(forms.ModelForm):
         }
         labels = {
             'id': 'Prioritat',
+
         }
 
 class SeverityForm(forms.ModelForm):
@@ -146,4 +150,5 @@ class TypeForm(forms.ModelForm):
         }
         labels = {
             'id': 'Tipus',
+
         }

@@ -1,4 +1,6 @@
+
 from django.contrib.sites import requests
+
 from django.db.models import Q
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
@@ -9,7 +11,9 @@ from django.contrib.auth.models import User
 from .forms import *
 
 
+
 @login_required()
+
 def issues_page(request):
 
         issues = Issue.objects.all().order_by('-created_at')
@@ -18,8 +22,10 @@ def issues_page(request):
         priority = request.GET.get('priority')
         assigned_to = request.GET.get('assigned_to')
         created_by = request.GET.get('created_by')
+
         severity = request.GET.get('severity')
         type = request.GET.get('type')
+
 
         if status:
             issues = issues.filter(status=status)
@@ -29,10 +35,12 @@ def issues_page(request):
             issues = issues.filter(assigned_to__id=assigned_to)
         if created_by:
             issues = issues.filter(created_by__id=created_by)
+
         if severity:
             issues = issues.filter(severity=severity)
         if type:
             issues = issues.filter(type=type)
+
 
 
         search_term = request.GET.get('search', '').strip()
@@ -77,7 +85,9 @@ def issues_page(request):
             'users': users
         })
 
+
 @login_required
+
 def issue_detail(request, issue_id):
     issue = get_object_or_404(Issue, id_issue=issue_id)
     attachment_form = AttachmentForm()
@@ -153,8 +163,10 @@ def custom_login_view(request):
 def settings_view(request):
     statuses = Status.objects.all()
     priorities = Priority.objects.all()
+
     severities = Severity.objects.all()
     types = Type.objects.all()
+
 
     if request.method == 'POST':
         if 'add_status' in request.POST:
@@ -167,6 +179,7 @@ def settings_view(request):
             if priority_form.is_valid():
                 priority_form.save()
                 return redirect('settings')
+
         elif 'add_severity' in request.POST:
             severity_form = SeverityForm(request.POST)
             if severity_form.is_valid():
@@ -186,6 +199,7 @@ def settings_view(request):
     return render(request, 'settings.html', {
         'statuses': statuses,
         'priorities': priorities,
+
         'severities': severities,
         'types': types,
 
@@ -274,3 +288,4 @@ def is_valid_image_url(url):
         return response.status_code == 200 and 'image' in content_type
     except:
         return False
+
