@@ -121,7 +121,7 @@ REST_FRAMEWORK = {
 SITE_ID = 2
 SOCIALACCOUNT_LOGIN_ON_GET = True
 LOGIN_REDIRECT_URL = 'https://backtracker-3hat.onrender.com/api/custom-issues'
-LOGOUT_REDIRECT_URL = 'https://backtracker-3hat.onrender.com/api/custom-issues'
+LOGOUT_REDIRECT_URL = 'https://backtracker-3hat.onrender.com/login'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
