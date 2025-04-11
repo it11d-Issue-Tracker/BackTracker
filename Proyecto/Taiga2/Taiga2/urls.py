@@ -17,7 +17,7 @@ urlpatterns = [
     path('api/issue-detail/<int:issue_id>/', issue_detail, name='issue-detail'),
 
     path('profile/', profile_view_id, name='self-profile'),
-    path('profile/<int:user_id>/', profile_view_id, name='profile'),
+    path('profile/<int:userid>/', profile_view_id, name='profile'),
 
     path('profile/edit', edit_bio, name='edit_bio'),
 

@@ -223,7 +223,7 @@ def profile_view_id(request, userid=None):
     active_tab = request.GET.get('tab', 'assigned')
 
     assigned_issues = Issue.objects.filter(assigned_to=user)
-    watched_issues = Issue.objects.filter(watchers=user)
+    watched_issues = Issue.objects.filter(watchers__user=user)
     user_comments = user.comments.select_related('issue')
 
     sort_by = request.GET.get('sort', '-updated_at')
@@ -258,7 +258,7 @@ def edit_bio(request):
         perfil = request.user.perfil
         if bio:
             perfil.bio = bio
-        if avatar_url and is_valid_image_url(avatar_url):
+        if avatar_url: # and is_valid_image_url(avatar_url):
             perfil.avatar_url = avatar_url
         perfil.save()
 
@@ -269,7 +269,7 @@ def edit_bio(request):
 #comprueba si una url es válida y si es una imagen
 def is_valid_image_url(url):
     try:
-        response = requests.head(url, timeout=3)
+        response = requests.get(url, stream=True, timeout=5)
         content_type = response.headers.get('Content-Type', '')
         return response.status_code == 200 and 'image' in content_type
     except:
