@@ -16,7 +16,7 @@ import environ
 import os
 
 
-
+DEBUG = True
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -27,7 +27,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-5$ucnfiv#k5=4r_nu+w-phaeki8!co4gh!zqd$f^lll=3yc$o9'
 
-DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
+
 
 
 ALLOWED_HOSTS = [
@@ -122,10 +122,10 @@ REST_FRAMEWORK = {
         'rest_framework.filters.SearchFilter',
     ],
 }
-
-SITE_ID = 2
-LOGIN_REDIRECT_URL = 'https://backtracker-3hat.onrender.com/api/custom-issues'
-LOGOUT_REDIRECT_URL = 'https://backtracker-3hat.onrender.com/login'
+SITE_ID = 1
+SOCIAL_ACCOUNT_LOGIN_ON_GET = True
+LOGIN_REDIRECT_URL = 'http://127.0.0.1:8000/api/custom-issues'
+LOGOUT_REDIRECT_URL = 'http://127.0.0.1:8000//login'
 
 DATABASES = {
     'default': {
@@ -176,8 +176,10 @@ USE_TZ = True
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
-if not DEBUG:
-    SECURE_SSL_REDIRECT = True
+if DEBUG:
+    SECURE_SSL_REDIRECT = False
+    SESSION_COOKIE_SECURE = False
+    CSRF_COOKIE_SECURE = False
 
 
 
