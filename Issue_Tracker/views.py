@@ -79,8 +79,10 @@ def issues_page(request):
         else:
             form = IssueCreateForm()
 
+        sort_by = request.GET.get('sort', '-updated_at')
+
         return render(request, 'issues_page.html', {
-            'issues': issues,
+            'issues': issues.order_by(sort_by),
             'form': form,
             'users': users
         })
