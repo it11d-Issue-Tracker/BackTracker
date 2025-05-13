@@ -6,19 +6,22 @@ import uuid
 
 class Status(models.Model):
     id = models.CharField(max_length=100, primary_key=True)
+    orden = models.PositiveIntegerField(unique=True)
+    color = models.CharField(max_length=7, unique=True)
 
     def __str__(self):
         return self.id
 
     class Meta:
         db_table = 'status'
+        ordering = ['orden']
 
 
 class Priority(models.Model):
     id = models.CharField(max_length=100, primary_key=True)
 
     orden = models.PositiveIntegerField(unique=True)
-    color = models.CharField(max_length=10, unique=True)
+    color = models.CharField(max_length=7, unique=True)
 
 
     def __str__(self):
@@ -31,7 +34,7 @@ class Priority(models.Model):
 class Severity(models.Model):
     id = models.CharField(max_length=100, primary_key=True)
     orden = models.PositiveIntegerField(unique=True)
-    color = models.CharField(max_length=10, unique=True)
+    color = models.CharField(max_length=7, unique=True)
 
     def __str__(self):
         return self.id
@@ -44,7 +47,7 @@ class Severity(models.Model):
 class Type(models.Model):
     id = models.CharField(max_length=100, primary_key=True)
     orden = models.PositiveIntegerField(unique=True)
-    color = models.CharField(max_length=10, unique=True)
+    color = models.CharField(max_length=7, unique=True)
 
     def __str__(self):
         return self.id
@@ -91,6 +94,9 @@ class Issue(models.Model):
         def type_color(self):
             return self.type.color if self.type else 'gray'
 
+        @property
+        def status_color(self):
+            return self.status.color if self.type else 'gray'
 
 
 class Comment(models.Model):

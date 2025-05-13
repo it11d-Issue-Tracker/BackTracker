@@ -9,7 +9,7 @@ from django.contrib.auth.decorators import login_required
 from .models import *
 from django.contrib.auth.models import User
 from .forms import *
-
+from .utils import reorden
 
 
 @login_required()
@@ -35,7 +35,6 @@ def issues_page(request):
             issues = issues.filter(assigned_to__id=assigned_to)
         if created_by:
             issues = issues.filter(created_by__id=created_by)
-
         if severity:
             issues = issues.filter(severity=severity)
         if type:
@@ -163,40 +162,58 @@ def custom_login_view(request):
 
 
 def settings_view(request):
-    statuses = Status.objects.all()
-    priorities = Priority.objects.all()
+    statuses = Status.objects.all().order_by('orden')
+    priorities = Priority.objects.all().order_by('orden')
 
-    severities = Severity.objects.all()
-    types = Type.objects.all()
+    severities = Severity.objects.all().order_by('orden')
+    types = Type.objects.all().order_by('orden')
 
+    status_form = StatusForm()
+    priority_form = PriorityForm()
+    severity_form = SeverityForm()
+    type_form = TypeForm()
 
     if request.method == 'POST':
+        orden = request.POST.get('orden')
+        orden = int(orden)
         if 'add_status' in request.POST:
             status_form = StatusForm(request.POST)
+            try:
+                reorden('Status', orden)
+            except (TypeError, ValueError):
+                print(f"orden no valido")
             if status_form.is_valid():
                 status_form.save()
                 return redirect('settings')
+
         elif 'add_priority' in request.POST:
             priority_form = PriorityForm(request.POST)
+            try:
+                reorden('Priority', orden)
+            except (TypeError, ValueError):
+                print(f"orden no valido")
             if priority_form.is_valid():
                 priority_form.save()
                 return redirect('settings')
 
         elif 'add_severity' in request.POST:
             severity_form = SeverityForm(request.POST)
+            try:
+                reorden('Severity', orden)
+            except (TypeError, ValueError):
+                print(f"orden no valido")
             if severity_form.is_valid():
                 severity_form.save()
                 return redirect('settings')
         elif 'add_type' in request.POST:
             type_form = TypeForm(request.POST)
+            try:
+                reorden('Type', orden)
+            except (TypeError, ValueError):
+                print(f"orden no valido")
             if type_form.is_valid():
                 type_form.save()
                 return redirect('settings')
-    else:
-        status_form = StatusForm()
-        priority_form = PriorityForm()
-        severity_form = SeverityForm()
-        type_form = TypeForm()
 
     return render(request, 'settings.html', {
         'statuses': statuses,
