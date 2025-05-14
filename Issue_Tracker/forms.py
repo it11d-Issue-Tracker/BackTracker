@@ -109,46 +109,61 @@ class AttachmentForm(forms.ModelForm):
 class StatusForm(forms.ModelForm):
     class Meta:
         model = Status
-        fields = ['id']
+        fields = ['id', 'color', 'orden']
         widgets = {
             'id': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nom del status'}),
+            'color': forms.TextInput(attrs={'type': 'color', 'class': 'form-control'}),
+            'orden': forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
         }
         labels = {
             'id': 'Status',
+            'color': 'Color',
+            'orden': 'Ordre',
         }
 
 
 class PriorityForm(forms.ModelForm):
     class Meta:
         model = Priority
-        fields = ['id']
+        fields = ['id', 'color', 'orden']
         widgets = {
             'id': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nom de la prioritat'}),
+            'color': forms.TextInput(attrs={'type': 'color', 'class': 'form-control'}),
+            'orden': forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
         }
         labels = {
             'id': 'Prioritat',
-
+            'color': 'Color',
+            'orden': 'Ordre',
         }
 
 class SeverityForm(forms.ModelForm):
     class Meta:
         model = Severity
-        fields = ['id']
+        fields = ['id', 'color', 'orden']
         widgets = {
             'id': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nom de la severitat'}),
+            'color': forms.TextInput(attrs={'type': 'color', 'class': 'form-control'}),
+            'orden': forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
         }
         labels = {
             'id': 'Severitat',
+            'color': 'Color',
+            'orden': 'Ordre',
         }
 
 class TypeForm(forms.ModelForm):
     class Meta:
         model = Type
-        fields = ['id']
+        fields = ['id', 'color', 'orden']
         widgets = {
             'id': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nom del tipus'}),
+            'color': forms.TextInput(attrs={'type': 'color', 'class': 'form-control'}),
+            'orden': forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
         }
         labels = {
             'id': 'Tipus',
+            'color': 'Color',
+            'orden': 'Ordre',
 
         }
