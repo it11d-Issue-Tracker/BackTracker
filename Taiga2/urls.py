@@ -29,9 +29,15 @@ urlpatterns = [
     path('profile/edit', edit_bio, name='edit_bio'),
 
 
-    path('settings/', settings_view, name='settings'),
+    path('settings/', api.SettingsAPIView.as_view(), name='settings'),
+    path('settings/status/', api.stausAPIView.as_view(), name='status'),
+    path('settings/priority/', api.priorityAPIView.as_view(), name='priority'),
+    path('settings/severity/', api.severityAPIView.as_view(), name='severity'),
+    path('settings/type/', api.typeAPIView.as_view(), name='type'),
+
     path('settings/delete_status/<str:status_id>/', delete_status, name='delete_status'),
     path('settings/delete_priority/<str:priority_id>/', delete_priority, name='delete_priority'),
+
 
 
     path('settings/delete_severity/<str:severity_id>/', delete_severity, name='delete_severity'),
