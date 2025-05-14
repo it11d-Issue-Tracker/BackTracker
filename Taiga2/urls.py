@@ -22,6 +22,13 @@ urlpatterns = [
     path('api/issues/', api.IssuesView.as_view(), name='all-issues'),
     path('api/issues/<int:issue_id>/', api.ViewIssue.as_view(), name='issue-detail'),
 
+    path('api/comments/', api.CommentView.as_view(), name='comments'),
+    path('api/comments/<int:comment_id>/', api.CommentDetailView.as_view(), name='comment-detail'),
+    path('api/attachments/', api.AttachmentView.as_view(), name='attachments'),
+    path('api/attachments/<int:attachment_id>/', api.AttachmentDetailView.as_view(), name='attachment-detail'),
+    path('api/watchers/', api.WatcherView.as_view(), name='watchers'),
+    path('api/watchers/<int:watcher_id>/', api.WatcherDetailView.as_view(), name='watcher-detail'),
+
 
     path('profile/', profile_view_id, name='self-profile'),
     path('profile/<int:userid>/', profile_view_id, name='profile'),

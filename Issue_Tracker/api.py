@@ -109,8 +109,126 @@ class DeleteIssues(APIView):
                 Issue.objects.filter(id=issue_id).delete()
             except Issue.DoesNotExist:
                 return Response(status=status.HTTP_404_NOT_FOUND)
-        return Response(status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_200_O)
 
+class CommentView(generics.ListCreateAPIView):
+    serializer_class = CommentSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        queryset = Comment.objects.all().order_by('-created_at')
+        issue_id = self.request.query_params.get('issue_id')
+        if issue_id:
+            queryset = queryset.filter(issue__id_issue=issue_id)
+        return queryset
+
+    def post(self, request):
+        serializer = CommentSerializer(data=request.data)
+        if serializer.is_valid():
+            issue_id = serializer.validated_data['issue'].id_issue
+            if not Issue.objects.filter(id_issue=issue_id).exists():
+                return Response({"error": "El issue especificado no existe."}, status=status.HTTP_400_BAD_REQUEST)
+            serializer.save(author=request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class CommentDetailView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, comment_id):
+        comment = get_object_or_404(Comment, id=comment_id)
+        serializer = CommentSerializer(comment)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def put(self, request, comment_id):
+        comment = get_object_or_404(Comment, id=comment_id)
+        if comment.author != request.user:
+            return Response({"error": "No puedes editar un comentario que no creaste."}, status=status.HTTP_403_FORBIDDEN)
+        serializer = CommentSerializer(comment, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, comment_id):
+        comment = get_object_or_404(Comment, id=comment_id)
+        if comment.author != request.user:
+            return Response({"error": "No puedes eliminar un comentario que no creaste."}, status=status.HTTP_403_FORBIDDEN)
+        comment.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+class AttachmentView(generics.ListCreateAPIView):
+    serializer_class = AttachmentSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        queryset = Attachment.objects.all()
+        issue_id = self.request.query_params.get('issue_id')
+        if issue_id:
+            queryset = queryset.filter(issue__id_issue=issue_id)
+        return queryset
+
+    def post(self, request):
+        serializer = AttachmentSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class AttachmentDetailView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, attachment_id):
+        attachment = get_object_or_404(Attachment, attachment_id=attachment_id)
+        serializer = AttachmentSerializer(attachment)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def delete(self, request, attachment_id):
+        attachment = get_object_or_404(Attachment, attachment_id=attachment_id)
+        attachment.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+class WatcherView(generics.ListCreateAPIView):
+    serializer_class = WatcherSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        queryset = Watcher.objects.all()
+        issue_id = self.request.query_params.get('issue_id')
+        if issue_id:
+            queryset = queryset.filter(issue__id_issue=issue_id)
+        return queryset
+
+    def post(self, request):
+        serializer = WatcherSerializer(data=request.data)
+        if serializer.is_valid():
+            try:
+                serializer.save(user=request.user)
+            except IntegrityError:
+                return Response({"error": "Este usuario ya está observando este issue."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class WatcherDetailView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, watcher_id):
+        watcher = get_object_or_404(Watcher, id=watcher_id)
+        serializer = WatcherSerializer(watcher)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def delete(self, request, watcher_id):
+        watcher = get_object_or_404(Watcher, id=watcher_id)
+        if watcher.user != request.user:
+            return Response({"error": "No puedes eliminar a otro usuario como watcher."}, status=status.HTTP_403_FORBIDDEN)
+        watcher.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 class SettingsAPIView(APIView):
     authentication_classes(IsAuthenticated, )
@@ -145,6 +263,7 @@ class stausAPIView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class priorityAPIView(APIView):
     authentication_classes = [TokenAuthentication]
