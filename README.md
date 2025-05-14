@@ -1,3 +1,13 @@
+https://backtracker-3hat.onrender.com/api/custom-issues/
+https://tree.taiga.io/project/samuel2c-issue-tracker-20/timeline
+
+Daniel Espinalt
+Samuel Cilleruelo
+Marti Tarres
+Shence Zhou
+
+
+
 # BackTracker
 
 CONEXION_BD

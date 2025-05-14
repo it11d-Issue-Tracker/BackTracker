@@ -11,7 +11,8 @@ class CommentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
-        fields = ['text', 'created_at', 'author', 'Username']
+        fields = ['issue','text', 'created_at', 'author', 'Username']
+        read_only_fields = ['created_at', 'author', 'Username']
 
 class AttachmentSerializer(serializers.ModelSerializer):
     class Meta:
@@ -23,7 +24,8 @@ class WatcherSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Watcher
-        fields = ['user', 'Username']
+        fields = ['issue', 'user', 'Username']
+        read_only_fields = ['user', 'Username']
 
 
 
