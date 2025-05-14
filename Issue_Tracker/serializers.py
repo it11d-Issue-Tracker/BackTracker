@@ -75,5 +75,22 @@ class IssueDetailSerializer(serializers.ModelSerializer):
 
 
 
+class StatusSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Status
+        fields = '__all__'
 
+class PrioritySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Priority
+        fields = '__all__'
 
+class SeveritySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Severity
+        fields = '__all__'
+
+class TypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Type
+        fields = '__all__'
