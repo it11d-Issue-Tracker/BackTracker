@@ -44,7 +44,7 @@ urlpatterns = [
     path('settings/severity/', api.severityAPIView.as_view(), name='severity'),
     path('settings/type/', api.typeAPIView.as_view(), name='type'),
 
-    path('settings/delete_status/<str:status_id>/', delete_status, name='delete_status'),
+    path('settings/delete_status/<str:status_id>/', api.deleteStatusAPIView.as_view(), name='delete_status'),
     path('settings/delete_priority/<str:priority_id>/', delete_priority, name='delete_priority'),
 
 

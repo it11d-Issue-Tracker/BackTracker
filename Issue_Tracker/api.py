@@ -257,6 +257,15 @@ class stausAPIView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+class deleteStatusAPIView(APIView):
+    def delete(self, request, status_id):
+        try:
+            sstatus = Status.objects.get(pk=status_id)
+        except Status.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        sstatus.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 class priorityAPIView(APIView):
     authentication_classes = [TokenAuthentication]
@@ -273,6 +282,15 @@ class priorityAPIView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+class deletePriorityAPIView(APIView):
+    def delete(self, request, priority_id):
+        try:
+            priority = Priority.objects.get(pk=priority_id)
+        except Priority.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        priority.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 class typeAPIView(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
@@ -288,6 +306,15 @@ class typeAPIView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+class deleteTypeAPIView(APIView):
+    def delete(self, request, type_id):
+        try:
+            type = Type.objects.get(pk=type_id)
+        except Type.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        type.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 class severityAPIView(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
@@ -302,6 +329,15 @@ class severityAPIView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class deleteSeverityAPIView(APIView):
+    def delete(self, request, severity_id):
+        try:
+            severity = Severity.objects.get(pk=severity_id)
+        except Severity.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        severity.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class UserApiView(APIView):
@@ -334,6 +370,21 @@ class UserApiView(APIView):
 
         }
         return Response(data, status=status.HTTP_200_OK)
+
+    def put(self, request,userid):
+        if request.user.id != userid:
+            return Response({"error": "No puedes editar este usuario."}, status=status.HTTP_403_FORBIDDEN)
+        bio = request.data.get('bio')
+        url = request.data.get('url')
+        perfil = get_object_or_404(Perfil, user_id=userid)
+        if bio:
+            perfil.bio = bio
+        if url:  # and is_valid_image_url(avatar_url):
+            perfil.avatar_url = url
+        perfil.save()
+        return Response({"message": "Perfil actualizado correctamente."}, status=status.HTTP_200_OK)
+
+
 
 
 
