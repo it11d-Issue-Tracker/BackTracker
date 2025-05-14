@@ -55,19 +55,23 @@ class IssuesView(generics.ListCreateAPIView):
     def post(self, request):
         user = request.user
         try:
-            subject = request.data.get('Subject')
-            description = request.data.get('Description')
-            statuss = request.data.get('Status')
+            subject = request.data.get('title')
+            description = request.data.get('description')
         except:
             return Response(status=status.HTTP_400_BAD_REQUEST)
-        Issue.objects.create(
+        issue = Issue.objects.create(
             title=subject,
             description=description,
             created_by=user,
-            status= statuss
-        )
-        return Response(status=status.HTTP_201_CREATED)
 
+        )
+        serializer = IssueDetailSerializer(issue, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            issue.delete()
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ViewIssue(APIView):
@@ -99,17 +103,6 @@ class ViewIssue(APIView):
         issue.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-
-
-class DeleteIssues(APIView):
-
-    def delete(self, request, issue_id):
-        if request.method == 'DELETE':
-            try:
-                Issue.objects.filter(id=issue_id).delete()
-            except Issue.DoesNotExist:
-                return Response(status=status.HTTP_404_NOT_FOUND)
-        return Response(status=status.HTTP_200_O)
 
 class CommentView(generics.ListCreateAPIView):
     serializer_class = CommentSerializer
@@ -309,5 +302,38 @@ class severityAPIView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UserApiView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+
+    def get(self, request,userid):
+        user = get_object_or_404(User, id=userid)
+        assigned_issues = Issue.objects.filter(assigned_to=user)
+        watched_issues = Issue.objects.filter(watchers__user=user)
+        comentaris = Comment.objects.filter(author_id=userid)
+        perfil = get_object_or_404(Perfil, user_id=userid)
+        perfil_bio_str = str(perfil.bio)
+        perfil_url = str(perfil.avatar_url)
+
+
+        data = {
+            'id': user.id,
+            'perfil': perfil_bio_str,
+            'url': perfil_url,
+            'assigned_issues': IssueSerializer(assigned_issues, many=True).data,
+            'watched_issues': IssueSerializer(watched_issues, many=True).data,
+            'comments': CommentSerializer(comentaris, many=True).data,
+            'assigned_count': assigned_issues.count(),
+            'watched_count': watched_issues.count(),
+            'comments_count': comentaris.count()
+
+
+
+        }
+        return Response(data, status=status.HTTP_200_OK)
+
 
 

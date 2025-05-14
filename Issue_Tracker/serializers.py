@@ -59,6 +59,12 @@ class IssueSerializer(serializers.ModelSerializer):
 
 
         ]
+    def create(self, validated_data):
+        try:
+            issue = Issue.objects.create(**validated_data)
+            return issue
+        except IntegrityError as e:
+            raise serializers.ValidationError({"error": str(e)})
 
 class IssueDetailSerializer(serializers.ModelSerializer):
     created_by = serializers.CharField(source='author.username', read_only=True)

@@ -31,9 +31,11 @@ urlpatterns = [
 
 
     path('profile/', profile_view_id, name='self-profile'),
-    path('profile/<int:userid>/', profile_view_id, name='profile'),
+    path('profile/<int:userid>/', api.UserApiView.as_view(), name='profile'),
 
     path('profile/edit', edit_bio, name='edit_bio'),
+
+
 
 
     path('settings/', api.SettingsAPIView.as_view(), name='settings'),
