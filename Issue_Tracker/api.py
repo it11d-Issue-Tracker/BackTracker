@@ -76,7 +76,7 @@ class ViewIssue(APIView):
             issue = Issue.objects.get(pk=issue_id)
         except Issue.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
-        serializer = IssueDetailSerializer(issue, data=request.data, partial=True)
+        serializer = IssueSerializer(issue, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -372,6 +372,25 @@ class UserApiView(APIView):
         return Response({"message": "Perfil actualizado correctamente."}, status=status.HTTP_200_OK)
 
 
+# Python
+class IssueBulkInsertAPIView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
 
+    def post(self, request):
+        issues_data = request.data.get('issues', [])
+        if not issues_data:
+            return Response({"error": "No se proporcionaron datos de issues."}, status=status.HTTP_400_BAD_REQUEST)
+
+        created_issues = []
+        for issue_data in issues_data:
+            serializer = IssueSerializer(data=issue_data, partial=True)
+            if serializer.is_valid():
+                serializer.save(created_by=request.user)  # Asigna el usuario autenticado
+                created_issues.append(serializer.data)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(created_issues, status=status.HTTP_201_CREATED)
 
 

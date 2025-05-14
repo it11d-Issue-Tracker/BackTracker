@@ -21,6 +21,7 @@ urlpatterns = [
     path('login/', custom_login_view, name='custom-login'),
     path('api/issues/', api.IssuesView.as_view(), name='all-issues'),
     path('api/issues/<int:issue_id>/', api.ViewIssue.as_view(), name='issue-detail'),
+    path('api/issues/bulk-insert/', api.IssueBulkInsertAPIView.as_view(), name='bulk-insert'),
 
     path('api/comments/', api.CommentView.as_view(), name='comments'),
     path('api/comments/<int:comment_id>/', api.CommentDetailView.as_view(), name='comment-detail'),
