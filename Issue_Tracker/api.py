@@ -53,25 +53,12 @@ class IssuesView(generics.ListCreateAPIView):
         return Response(status=status.HTTP_202_ACCEPTED)
 
     def post(self, request):
-        user = request.user
-        try:
-            subject = request.data.get('title')
-            description = request.data.get('description')
-        except:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-        issue = Issue.objects.create(
-            title=subject,
-            description=description,
-            created_by=user,
-
-        )
-        serializer = IssueDetailSerializer(issue, data=request.data)
+        serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        else:
-            issue.delete()
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            serializer.save(created_by=request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 class ViewIssue(APIView):
