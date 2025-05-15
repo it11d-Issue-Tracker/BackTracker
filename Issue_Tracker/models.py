@@ -60,43 +60,46 @@ class Type(models.Model):
 
 
 
+# python
 class Issue(models.Model):
-        id_issue = models.AutoField(primary_key=True, editable=False)
-        title = models.CharField(max_length=200)
-        description = models.TextField()
-        status = models.ForeignKey('Status', on_delete=models.SET_NULL, null=True, related_name='issues')
-        priority = models.ForeignKey('Priority', on_delete=models.SET_NULL, null=True, related_name='issues')
-        created_by = models.ForeignKey(User, on_delete=models.CASCADE, db_column='created_by', to_field='id',
-                                       related_name='issues')
-        assigned_to = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='assigned_issues',
-                                        db_column='assigned_to')
-        deadline = models.DateField(null=True, blank=True)
-        created_at = models.DateTimeField(auto_now_add=True)
-        updated_at = models.DateTimeField(auto_now=True)
+    id_issue = models.AutoField(primary_key=True, editable=False)
+    title = models.CharField(max_length=200)
+    description = models.TextField()
+    status = models.ForeignKey('Status', on_delete=models.SET_DEFAULT, default='new', null=False, related_name='issues')
+    priority = models.ForeignKey('Priority', on_delete=models.SET_DEFAULT, default='normal', null=False, related_name='issues')
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, db_column='created_by', to_field='id', related_name='issues')
+    assigned_to = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='assigned_issues', db_column='assigned_to')
+    deadline = models.DateField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    severity = models.ForeignKey(
+        'Severity',
+        on_delete=models.SET_DEFAULT,
+        default='normal',  # Aquest valor ha d'existir a la taula Severity
+        related_name='issues',
+        null=False
+    )
+    type = models.ForeignKey('Type', on_delete=models.SET_DEFAULT, default='task', null=False, related_name='issues')
 
-        severity = models.ForeignKey('Severity', on_delete=models.SET_NULL, null=True, related_name='issues')
-        type = models.ForeignKey('Type', on_delete=models.SET_NULL, null=True, related_name='issues')
-
-
-        class Meta:
+    class Meta:
             db_table = 'issue'
 
 
-        @property
-        def priority_color(self):
-            return self.priority.color if self.priority else 'gray'
+    @property
+    def priority_color(self):
+        return self.priority.color if self.priority else 'gray'
 
-        @property
-        def severity_color(self):
-            return self.severity.color if self.severity else 'gray'
+    @property
+    def severity_color(self):
+         return self.severity.color if self.severity else 'gray'
 
-        @property
-        def type_color(self):
-            return self.type.color if self.type else 'gray'
+    @property
+    def type_color(self):
+        return self.type.color if self.type else 'gray'
 
-        @property
-        def status_color(self):
-            return self.status.color if self.type else 'gray'
+    @property
+    def status_color(self):
+        return self.status.color if self.type else 'gray'
 
 
 class Comment(models.Model):

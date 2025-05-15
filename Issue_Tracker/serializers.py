@@ -27,38 +27,18 @@ class WatcherSerializer(serializers.ModelSerializer):
         fields = ['issue', 'user', 'Username']
         read_only_fields = ['user', 'Username']
 
-
-
 class IssueSerializer(serializers.ModelSerializer):
-
-
-    created_by = serializers.CharField(source='created_by.username', read_only=True)
-    assigned_to = serializers.CharField(source='assigned_to.username', read_only=True)
-
-    status = serializers.CharField(source='status.id', read_only=True)
-    priority = serializers.CharField(source='priority.id', read_only=True)
-    severity = serializers.CharField(source='severity.id', read_only=True)
-    type = serializers.CharField(source='type.id', read_only=True)
-
-
     class Meta:
-        model = Issue
-        fields = [
-            'title',
-            'description',
-            'status',
-            'priority',
-            'assigned_to',
-            'deadline',
-            'created_by',
-            'created_at',
-            'updated_at',
+            model = Issue
+            fields = '__all__'
 
-            'severity',
-            'type',
+    def create(self, validated_data):
+        try:
+            issue = Issue.objects.create(**validated_data)
+            return issue
+        except IntegrityError as error:
+            raise serializers.ValidationError({"error": str(error)})
 
-
-        ]
 
 class IssueDetailSerializer(serializers.ModelSerializer):
     created_by = serializers.CharField(source='author.username', read_only=True)

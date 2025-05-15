@@ -21,6 +21,7 @@ urlpatterns = [
     path('login/', custom_login_view, name='custom-login'),
     path('api/issues/', api.IssuesView.as_view(), name='all-issues'),
     path('api/issues/<int:issue_id>/', api.ViewIssue.as_view(), name='issue-detail'),
+    path('api/issues/bulk-insert/', api.IssueBulkInsertAPIView.as_view(), name='bulk-insert'),
 
     path('api/comments/', api.CommentView.as_view(), name='comments'),
     path('api/comments/<int:comment_id>/', api.CommentDetailView.as_view(), name='comment-detail'),
@@ -31,9 +32,11 @@ urlpatterns = [
 
 
     path('profile/', profile_view_id, name='self-profile'),
-    path('profile/<int:userid>/', profile_view_id, name='profile'),
+    path('profile/<int:userid>/', api.UserApiView.as_view(), name='profile'),
 
     path('profile/edit', edit_bio, name='edit_bio'),
+
+
 
 
     path('settings/', api.SettingsAPIView.as_view(), name='settings'),
@@ -42,7 +45,7 @@ urlpatterns = [
     path('settings/severity/', api.severityAPIView.as_view(), name='severity'),
     path('settings/type/', api.typeAPIView.as_view(), name='type'),
 
-    path('settings/delete_status/<str:status_id>/', delete_status, name='delete_status'),
+    path('settings/delete_status/<str:status_id>/', api.deleteStatusAPIView.as_view(), name='delete_status'),
     path('settings/delete_priority/<str:priority_id>/', delete_priority, name='delete_priority'),
 
 
