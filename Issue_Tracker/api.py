@@ -394,3 +394,16 @@ class IssueBulkInsertAPIView(APIView):
         return Response(created_issues, status=status.HTTP_201_CREATED)
 
 
+class TokenPorfileApiView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request,userid):
+        user = get_object_or_404(User, id=userid)
+        token = user.auth_token.key
+
+        data = {
+            'id': user.id,
+            'token': token
+        }
+        return Response(data, status=status.HTTP_200_OK)
