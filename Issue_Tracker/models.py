@@ -1,5 +1,8 @@
+# Issue_Tracker/models.py
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.contrib.auth.models import User
+from datetime import date
 
 import uuid
 
@@ -58,6 +61,10 @@ class Type(models.Model):
 
 
 
+def validate_deadline(value):
+    if value and value < date.today():
+        raise ValidationError('La data de venciment no pot ser anterior a la data actual.')
+
 
 
 # python
@@ -69,7 +76,7 @@ class Issue(models.Model):
     priority = models.ForeignKey('Priority', on_delete=models.SET_DEFAULT, default='normal', null=False, related_name='issues')
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, db_column='created_by', to_field='id', related_name='issues')
     assigned_to = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='assigned_issues', db_column='assigned_to')
-    deadline = models.DateField(null=True, blank=True)
+    deadline = models.DateField(null=True, blank=True, validators=[validate_deadline])
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     severity = models.ForeignKey(

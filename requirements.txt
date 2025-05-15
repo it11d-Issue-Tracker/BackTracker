@@ -1,44 +1,22 @@
-asgiref==3.8.1
-certifi==2025.1.31
-cffi==1.17.1
-charset-normalizer==3.4.1
-cryptography==44.0.3
-Django==5.2
-django-allauth==65.7.0
-django-environ==0.12.0
-django-filter==25.1
-djangorestframework==3.16.0
-drf-yasg==1.21.10
-idna==3.10
-inflection==0.5.1
-packaging==25.0
-pillow==11.1.0
-psycopg==3.2.6
-psycopg-binary==3.2.6
-psycopg2==2.9.10
-pycparser==2.22
-PyJWT==2.10.1
-pytz==2025.2
-PyYAML==6.0.2
-requests==2.32.3
-sqlparse==0.5.3
-typing_extensions==4.13.1
-tzdata==2025.2
-uritemplate==4.1.1
-urllib3==2.3.0
-whitenoise==6.9.0
-
 # Paquetes principales
 Django==5.1.7
 django-environ==0.12.0
+asgiref==3.8.1
+sqlparse==0.5.3
 
 # REST Framework
 djangorestframework==3.15.1
-djangorestframework-simplejwt==5.3.1  # Opcional para JWT
+djangorestframework-simplejwt==5.3.1
+drf-yasg==1.21.10
+uritemplate==4.1.1
+PyYAML==6.0.2
+inflection==0.5.1
+packaging==25.0
 
 # Autenticación
 django-allauth==0.58.2
-dj-rest-auth==4.0.1  # Para API auth
+dj-rest-auth==4.0.1
+PyJWT==2.10.1
 
 # Base de datos
 psycopg2-binary==2.9.9
@@ -52,6 +30,19 @@ whitenoise==6.6.0
 # Servidor de producción
 gunicorn==21.2.0
 
-# Otros esenciales
-Pillow==10.3.0  # Para manejo de imágenes
-python-decouple==3.8  # Para variables de entorno
+# Manejo de imágenes
+Pillow==10.3.0
+
+# HTTP y utilidades
+requests==2.32.3
+certifi==2025.1.31
+charset-normalizer==3.4.1
+idna==3.10
+urllib3==2.3.0
+
+# Zonas horarias
+pytz==2025.2
+tzdata==2025.2
+
+# Variables de entorno
+python-decouple==3.8
