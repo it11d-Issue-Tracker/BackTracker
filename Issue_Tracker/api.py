@@ -30,20 +30,35 @@ class IssuesView(generics.ListCreateAPIView):
 
         q = self.request.query_params.get('q')
         if q is not None:
-            queryset = queryset.filter(Q(Subject__icontains=q) | Q(Description__icontains=q))
+            queryset = queryset.filter(Q(title__icontains=q) | Q(description__icontains=q))
 
         status = self.request.query_params.get('status')
         if status is not None:
-            queryset = queryset.filter(Status__icontains=status)
+            queryset = queryset.filter(status=status)
 
         priority = self.request.query_params.get('priority')
         if priority is not None:
-            queryset = queryset.filter(Priority__icontains=priority)
+            queryset = queryset.filter(priority=priority)
 
-        creator = self.request.query_params.get('creator')
-        if creator is not None:
-            queryset = queryset.filter(Creator__username__icontains=creator)
+        created_by = self.request.query_params.get('created_by')
+        if created_by is not None:
+            queryset = queryset.filter(created_by=created_by)
+
+        assigned_to = self.request.query_params.get('assigned_to')
+        if assigned_to is not None:
+            queryset = queryset.filter(assigned_to=assigned_to)
+
+        type = self.request.query_params.get('type')
+        if type is not None:
+            queryset = queryset.filter(type=type)
+
+        severity = self.request.query_params.get('severity')
+        if severity is not None:
+            queryset = queryset.filter(severity=severity)
         return queryset
+
+
+
 
     def delete(self, request):
         try:
@@ -68,8 +83,21 @@ class ViewIssue(APIView):
         except Issue.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         serializer = IssueDetailSerializer(issue)
-        response_data = serializer.data
-        return Response(response_data, status=status.HTTP_200_OK)
+        issue_data = serializer.data
+
+        # Afegeix els comentaris
+        comments = Comment.objects.filter(issue=issue)
+        issue_data['comments'] = CommentSerializer(comments, many=True).data
+
+        # Afegeix els watchers
+        watchers = Watcher.objects.filter(issue=issue)
+        issue_data['watchers'] = WatcherSerializer(watchers, many=True).data
+
+        # Afegeix els attachments
+        attachments = Attachment.objects.filter(issue=issue)
+        issue_data['attachments'] = AttachmentSerializer(attachments, many=True).data
+
+        return Response(issue_data, status=status.HTTP_200_OK)
 
     def put(self, request, issue_id):
         try:
@@ -394,3 +422,16 @@ class IssueBulkInsertAPIView(APIView):
         return Response(created_issues, status=status.HTTP_201_CREATED)
 
 
+class TokenPorfileApiView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request,userid):
+        user = get_object_or_404(User, id=userid)
+        token = user.auth_token.key
+
+        data = {
+            'id': user.id,
+            'token': token
+        }
+        return Response(data, status=status.HTTP_200_OK)

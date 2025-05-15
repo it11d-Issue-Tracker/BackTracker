@@ -34,20 +34,21 @@ urlpatterns = [
 
     path('login', custom_login_view, name='custom-login'),
     path('login/', custom_login_view, name='custom-login'),
-    path('api/issues/', api.IssuesView.as_view(), name='all-issues'),
-    path('api/issues/<int:issue_id>/', api.ViewIssue.as_view(), name='issue-detail'),
-    path('api/issues/bulk-insert/', api.IssueBulkInsertAPIView.as_view(), name='bulk-insert'),
+    path('issues/', api.IssuesView.as_view(), name='all-issues'),
+    path('issues/<int:issue_id>/', api.ViewIssue.as_view(), name='issue-detail'),
+    path('issues/bulk-insert/', api.IssueBulkInsertAPIView.as_view(), name='bulk-insert'),
 
-    path('api/comments/', api.CommentView.as_view(), name='comments'),
-    path('api/comments/<int:comment_id>/', api.CommentDetailView.as_view(), name='comment-detail'),
-    path('api/attachments/', api.AttachmentView.as_view(), name='attachments'),
-    path('api/attachments/<int:attachment_id>/', api.AttachmentDetailView.as_view(), name='attachment-detail'),
-    path('api/watchers/', api.WatcherView.as_view(), name='watchers'),
-    path('api/watchers/<int:watcher_id>/', api.WatcherDetailView.as_view(), name='watcher-detail'),
+    path('comments/', api.CommentView.as_view(), name='comments'),
+    path('comments/<int:comment_id>/', api.CommentDetailView.as_view(), name='comment-detail'),
+    path('attachments/', api.AttachmentView.as_view(), name='attachments'),
+    path('attachments/<int:attachment_id>/', api.AttachmentDetailView.as_view(), name='attachment-detail'),
+    path('watchers/', api.WatcherView.as_view(), name='watchers'),
+    path('watchers/<int:watcher_id>/', api.WatcherDetailView.as_view(), name='watcher-detail'),
 
 
     path('profile/', profile_view_id, name='self-profile'),
     path('profile/<int:userid>/', api.UserApiView.as_view(), name='profile'),
+    path('profile/<int:userid>/token/', api.TokenPorfileApiView.as_view(), name='token'),
 
     path('profile/edit', edit_bio, name='edit_bio'),
 
