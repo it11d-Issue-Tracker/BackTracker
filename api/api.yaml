@@ -1,0 +1,1669 @@
+---
+openapi: 3.0.3
+info:
+  title: Issue Tracker API
+  version: 1.0.0
+  description: |
+    API REST para gestionar incidencias, comentarios, adjuntos, observadores y
+    configuraciones en una aplicación de seguimiento de tareas. Diseñada para
+    usuarios autenticados, permite operaciones CRUD con búsqueda avanzada,
+    filtrado y carga de archivos adjuntos.
+
+    **Funcionalidades**:
+    - **Incidencias**: Crear, listar, actualizar y eliminar issues con filtros.
+    - **Comentarios**: Gestionar comentarios asociados a issues.
+    - **Adjuntos**: Subir archivos con `multipart/form-data`.
+    - **Observadores**: Seguir issues para notificaciones.
+    - **Configuraciones**: Gestionar estados, prioridades, severidades y tipos.
+
+    **Autentificación**:
+    - Usa tokens en el encabezado `Authorization: Token <api_key>`.
+    - Obtén la API key desde la página de perfil.
+
+    **Instrucciones**:
+    - Importa este fichero en [Swagger Editor](https://editor.swagger.io/).
+    - Configura CORS para permitir solicitudes desde Swagger Editor.
+    - Incluye un token válido en cada solicitud.
+  termsOfService: https://www.example.com/terms/
+  contact:
+    name: Equipo Issue Tracker
+    email: support@issue-tracker.com
+    url: https://www.issue-tracker.com
+  license:
+    name: MIT License
+    url: https://opensource.org/licenses/MIT
+externalDocs:
+  description: Repositorio y documentación
+  url: https://github.com/equipo/issue-tracker
+servers:
+  - url: https://issue-tracker.render.com/api
+    description: Servidor de producción (Render)
+  - url: http://localhost:8000/api
+    description: Servidor de desarrollo local
+components:
+  securitySchemes:
+    TokenAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: |
+        Token en formato `Token <api_key>`. Ejemplo: `Token abc123def456`.
+        Obtén la API key desde la página de perfil.
+  schemas:
+    Issue:
+      type: object
+      description: Representa una incidencia en el sistema.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          description: Identificador único.
+          example: 1
+        title:
+          type: string
+          description: Título del issue (máx. 255 caracteres).
+          example: "Error en autenticación"
+        description:
+          type: string
+          description: Descripción detallada del issue.
+          example: "El sistema no valida credenciales en iOS 18."
+        status:
+          type: string
+          description: Estado del issue (ver /statuses/).
+          example: "open"
+        priority:
+          type: string
+          description: Prioridad del issue (ver /priorities/).
+          example: "high"
+          nullable: true
+        creator:
+          type: string
+          readOnly: true
+          description: Nombre del creador.
+          example: "alice"
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Fecha de creación.
+          example: "2025-05-15T12:00:00Z"
+      required:
+        - title
+        - description
+        - status
+    IssueCreate:
+      type: object
+      description: Estructura para crear una incidencia.
+      properties:
+        title:
+          type: string
+          description: Título del issue (máx. 255 caracteres).
+          example: "Error en autenticación"
+        description:
+          type: string
+          description: Descripción detallada.
+          example: "El sistema no valida credenciales en iOS 18."
+        status:
+          type: string
+          description: Estado inicial (ver /statuses/).
+          example: "open"
+      required:
+        - title
+        - description
+        - status
+    Comment:
+      type: object
+      description: Comentario asociado a una incidencia.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          description: Identificador único.
+          example: 1
+        issue:
+          type: integer
+          description: ID del issue.
+          example: 1
+        content:
+          type: string
+          description: Texto del comentario.
+          example: "Error en Chrome v120."
+        author:
+          type: string
+          readOnly: true
+          description: Nombre del autor.
+          example: "bob"
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Fecha de creación.
+          example: "2025-05-15T12:15:00Z"
+      required:
+        - issue
+        - content
+    Attachment:
+      type: object
+      description: Archivo adjunto a una incidencia.
+      properties:
+        attachment_id:
+          type: integer
+          readOnly: true
+          description: Identificador único.
+          example: 1
+        issue:
+          type: integer
+          description: ID del issue.
+          example: 1
+        file:
+          type: string
+          format: uri
+          readOnly: true
+          description: URL del archivo.
+          example: "https://issue-tracker.render.com/media/screenshot.png"
+        uploaded_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Fecha de subida.
+          example: "2025-05-15T12:20:00Z"
+      required:
+        - issue
+    Watcher:
+      type: object
+      description: Usuario que observa una incidencia.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          description: Identificador único.
+          example: 1
+        issue:
+          type: integer
+          description: ID del issue.
+          example: 1
+        user:
+          type: string
+          readOnly: true
+          description: Nombre del observador.
+          example: "alice"
+      required:
+        - issue
+    Status:
+      type: object
+      description: Estado configurable.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          description: Identificador único.
+          example: 1
+        name:
+          type: string
+          description: Nombre (máx. 50 caracteres).
+          example: "Open"
+        orden:
+          type: integer
+          description: Orden de visualización.
+          example: 1
+      required:
+        - name
+        - orden
+    Priority:
+      type: object
+      description: Prioridad configurable.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          description: Identificador único.
+          example: 1
+        name:
+          type: string
+          description: Nombre (máx. 50 caracteres).
+          example: "High"
+        orden:
+          type: integer
+          description: Orden de visualización.
+          example: 1
+      required:
+        - name
+        - orden
+    Severity:
+      type: object
+      description: Severidad configurable.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          description: Identificador único.
+          example: 1
+        name:
+          type: string
+          description: Nombre (máx. 50 caracteres).
+          example: "Critical"
+        orden:
+          type: integer
+          description: Orden de visualización.
+          example: 1
+      required:
+        - name
+        - orden
+    Type:
+      type: object
+      description: Tipo configurable.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          description: Identificador único.
+          example: 1
+        name:
+          type: string
+          description: Nombre (máx. 50 caracteres).
+          example: "Bug"
+        orden:
+          type: integer
+          description: Orden de visualización.
+          example: 1
+      required:
+        - name
+        - orden
+    Settings:
+      type: object
+      description: Colección de configuraciones.
+      properties:
+        statuses:
+          type: array
+          description: Lista de estados.
+          items:
+            $ref: '#/components/schemas/Status'
+        priorities:
+          type: array
+          description: Lista de prioridades.
+          items:
+            $ref: '#/components/schemas/Priority'
+        severities:
+          type: array
+          description: Lista de severidades.
+          items:
+            $ref: '#/components/schemas/Severity'
+        types:
+          type: array
+          description: Lista de tipos.
+          items:
+            $ref: '#/components/schemas/Type'
+    Error:
+      type: object
+      description: Respuesta de error.
+      properties:
+        error:
+          type: string
+          description: Mensaje de error.
+          example: "No se encontraron incidencias"
+      required:
+        - error
+paths:
+  /issues/:
+    get:
+      summary: Listar incidencias
+      description: |
+        Recupera incidencias con soporte para búsqueda, filtrado y ordenación.
+        Parámetros: `q` (búsqueda), `status`, `priority`, `creator`, `order_by`.
+        Ejemplo: `GET /issues/?q=error&status=open&order_by=-created_at`.
+      operationId: listIssues
+      tags:
+        - Issues
+      parameters:
+        - name: q
+          in: query
+          description: Buscar en título o descripción.
+          schema:
+            type: string
+          example: "error"
+        - name: status
+          in: query
+          description: Filtrar por estado.
+          schema:
+            type: string
+          example: "open"
+        - name: priority
+          in: query
+          description: Filtrar por prioridad.
+          schema:
+            type: string
+          example: "high"
+        - name: creator
+          in: query
+          description: Filtrar por creador.
+          schema:
+            type: string
+          example: "alice"
+        - name: order_by
+          in: query
+          description: Ordenar (ej. `-created_at`).
+          schema:
+            type: string
+          example: "-created_at"
+      responses:
+        '200':
+          description: Lista de incidencias.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Issue'
+              example:
+                - id: 1
+                  title: "Error en autenticación"
+                  description: "No valida credenciales en iOS 18."
+                  status: "open"
+                  priority: "high"
+                  creator: "alice"
+                  created_at: "2025-05-15T12:00:00Z"
+                - id: 2
+                  title: "Optimización consultas"
+                  description: "Consultas lentas en dashboard."
+                  status: "in_progress"
+                  priority: "medium"
+                  creator: "bob"
+                  created_at: "2025-05-14T09:00:00Z"
+        '401':
+          description: No autorizado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Credenciales no proporcionadas"
+        '404':
+          description: No hay incidencias.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "No hay Issues"
+      security:
+        - TokenAuth: []
+    post:
+      summary: Crear incidencia
+      description: |
+        Crea una incidencia. El creador y la fecha se asignan automáticamente.
+        Ejemplo: `POST /issues/` con `title`, `description`, `status`.
+      operationId: createIssue
+      tags:
+        - Issues
+      requestBody:
+        description: Datos de la incidencia.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IssueCreate'
+            example:
+              title: "Error en autenticación"
+              description: "No valida credenciales en iOS 18."
+              status: "open"
+      responses:
+        '201':
+          description: Incidencia creada.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Issue'
+              example:
+                id: 1
+                title: "Error en autenticación"
+                description: "No valida credenciales en iOS 18."
+                status: "open"
+                priority: null
+                creator: "alice"
+                created_at: "2025-05-15T12:00:00Z"
+        '400':
+          description: Datos inválidos.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Faltan campos requeridos"
+        '401':
+          description: No autorizado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Credenciales no proporcionadas"
+      security:
+        - TokenAuth: []
+    delete:
+      summary: Eliminar todas las incidencias
+      description: |
+        Elimina todas las incidencias (requiere permisos administrativos).
+        Ejemplo: `DELETE /issues/`.
+      operationId: deleteAllIssues
+      tags:
+        - Issues
+      responses:
+        '202':
+          description: Incidencias eliminadas.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Confirmación.
+                    example: "Incidencias eliminadas"
+        '401':
+          description: No autorizado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Credenciales no proporcionadas"
+        '403':
+          description: Permisos insuficientes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "No tienes permisos"
+        '404':
+          description: No hay incidencias.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "No hay Issues"
+      security:
+        - TokenAuth: []
+  /issues/{issue_id}/:
+    get:
+      summary: Obtener incidencia
+      description: |
+        Recupera una incidencia por ID.
+        Ejemplo: `GET /issues/1/`.
+      operationId: getIssue
+      tags:
+        - Issues
+      parameters:
+        - name: issue_id
+          in: path
+          description: ID de la incidencia.
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+          example: 1
+      responses:
+        '200':
+          description: Detalles de la incidencia.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Issue'
+              example:
+                id: 1
+                title: "Error en autenticación"
+                description: "No valida credenciales en iOS 18."
+                status: "open"
+                priority: "high"
+                creator: "alice"
+                created_at: "2025-05-15T12:00:00Z"
+        '401':
+          description: No autorizado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Credenciales no proporcionadas"
+        '404':
+          description: Incidencia no encontrada.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Issue no encontrado"
+      security:
+        - TokenAuth: []
+    put:
+      summary: Actualizar incidencia
+      description: |
+        Actualiza una incidencia por ID.
+        Ejemplo: `PUT /issues/1/` con campos opcionales.
+      operationId: updateIssue
+      tags:
+        - Issues
+      parameters:
+        - name: issue_id
+          in: path
+          description: ID de la incidencia.
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+          example: 1
+      requestBody:
+        description: Datos para actualizar.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Issue'
+            example:
+              title: "Error autenticación (actualizado)"
+              description: "Persiste en iOS 18."
+              status: "in_progress"
+              priority: "high"
+      responses:
+        '200':
+          description: Incidencia actualizada.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Issue'
+              example:
+                id: 1
+                title: "Error autenticación (actualizado)"
+                description: "Persiste en iOS 18."
+                status: "in_progress"
+                priority: "high"
+                creator: "alice"
+                created_at: "2025-05-15T12:00:00Z"
+        '400':
+          description: Datos inválidos.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Datos inválidos"
+        '401':
+          description: No autorizado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Credenciales no proporcionadas"
+        '404':
+          description: Incidencia no encontrada.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Issue no encontrado"
+      security:
+        - TokenAuth: []
+    delete:
+      summary: Eliminar incidencia
+      description: |
+        Elimina una incidencia por ID.
+        Ejemplo: `DELETE /issues/1/`.
+      operationId: deleteIssue
+      tags:
+        - Issues
+      parameters:
+        - name: issue_id
+          in: path
+          description: ID de la incidencia.
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+          example: 1
+      responses:
+        '204':
+          description: Incidencia eliminada.
+          content: {}
+        '401':
+          description: No autorizado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Credenciales no proporcionadas"
+        '404':
+          description: Incidencia no encontrada.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Issue no encontrado"
+      security:
+        - TokenAuth: []
+  /comments/:
+    get:
+      summary: Listar comentarios
+      description: |
+        Recupera comentarios, filtrados por `issue_id`.
+        Ejemplo: `GET /comments/?issue_id=1`.
+      operationId: listComments
+      tags:
+        - Comments
+      parameters:
+        - name: issue_id
+          in: query
+          description: Filtrar por ID de incidencia.
+          schema:
+            type: integer
+            minimum: 1
+          example: 1
+      responses:
+        '200':
+          description: Lista de comentarios.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Comment'
+              example:
+                - id: 1
+                  issue: 1
+                  content: "Error en Chrome v120."
+                  author: "bob"
+                  created_at: "2025-05-15T12:15:00Z"
+                - id: 2
+                  issue: 1
+                  content: "Adjunta un log."
+                  author: "alice"
+                  created_at: "2025-05-15T12:10:00Z"
+        '401':
+          description: No autorizado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Credenciales no proporcionadas"
+      security:
+        - TokenAuth: []
+    post:
+      summary: Crear comentario
+      description: |
+        Crea un comentario para una incidencia.
+        Ejemplo: `POST /comments/` con `issue` y `content`.
+      operationId: createComment
+      tags:
+        - Comments
+      requestBody:
+        description: Datos del comentario.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Comment'
+            example:
+              issue: 1
+              content: "Error en Chrome v120."
+      responses:
+        '201':
+          description: Comentario creado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+              example:
+                id: 1
+                issue: 1
+                content: "Error en Chrome v120."
+                author: "bob"
+                created_at: "2025-05-15T12:15:00Z"
+        '400':
+          description: Datos inválidos.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Issue no existe"
+        '401':
+          description: No autorizado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Credenciales no proporcionadas"
+      security:
+        - TokenAuth: []
+  /comments/{comment_id}/:
+    get:
+      summary: Obtener comentario
+      description: |
+        Recupera un comentario por ID.
+        Ejemplo: `GET /comments/1/`.
+      operationId: getComment
+      tags:
+        - Comments
+      parameters:
+        - name: comment_id
+          in: path
+          description: ID del comentario.
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+          example: 1
+      responses:
+        '200':
+          description: Detalles del comentario.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+              example:
+                id: 1
+                issue: 1
+                content: "Error en Chrome v120."
+                author: "bob"
+                created_at: "2025-05-15T12:15:00Z"
+        '401':
+          description: No autorizado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Credenciales no proporcionadas"
+        '404':
+          description: Comentario no encontrado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Comentario no encontrado"
+      security:
+        - TokenAuth: []
+    put:
+      summary: Actualizar comentario
+      description: |
+        Actualiza un comentario por ID (solo el autor).
+        Ejemplo: `PUT /comments/1/` con `content`.
+      operationId: updateComment
+      tags:
+        - Comments
+      parameters:
+        - name: comment_id
+          in: path
+          description: ID del comentario.
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+          example: 1
+      requestBody:
+        description: Datos para actualizar.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Comment'
+            example:
+              content: "Error en Chrome v120 y Firefox v115."
+      responses:
+        '200':
+          description: Comentario actualizado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+              example:
+                id: 1
+                issue: 1
+                content: "Error en Chrome v120 y Firefox v115."
+                author: "bob"
+                created_at: "2025-05-15T12:15:00Z"
+        '400':
+          description: Datos inválidos.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Datos inválidos"
+        '401':
+          description: No autorizado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Credenciales no proporcionadas"
+        '403':
+          description: No eres el autor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "No puedes editar este comentario"
+        '404':
+          description: Comentario no encontrado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Comentario no encontrado"
+      security:
+        - TokenAuth: []
+    delete:
+      summary: Eliminar comentario
+      description: |
+        Elimina un comentario por ID (solo el autor).
+        Ejemplo: `DELETE /comments/1/`.
+      operationId: deleteComment
+      tags:
+        - Comments
+      parameters:
+        - name: comment_id
+          in: path
+          description: ID del comentario.
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+          example: 1
+      responses:
+        '204':
+          description: Comentario eliminado.
+          content: {}
+        '401':
+          description: No autorizado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Credenciales no proporcionadas"
+        '403':
+          description: No eres el autor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "No puedes eliminar este comentario"
+        '404':
+          description: Comentario no encontrado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Comentario no encontrado"
+      security:
+        - TokenAuth: []
+  /attachments/:
+    get:
+      summary: Listar adjuntos
+      description: |
+        Recupera adjuntos, filtrados por `issue_id`.
+        Ejemplo: `GET /attachments/?issue_id=1`.
+      operationId: listAttachments
+      tags:
+        - Attachments
+      parameters:
+        - name: issue_id
+          in: query
+          description: Filtrar por ID de incidencia.
+          schema:
+            type: integer
+            minimum: 1
+          example: 1
+      responses:
+        '200':
+          description: Lista de adjuntos.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Attachment'
+              example:
+                - attachment_id: 1
+                  issue: 1
+                  file: "https://issue-tracker.render.com/media/screenshot.png"
+                  uploaded_at: "2025-05-15T12:20:00Z"
+                - attachment_id: 2
+                  issue: 1
+                  file: "https://issue-tracker.render.com/media/log.txt"
+                  uploaded_at: "2025-05-15T12:25:00Z"
+        '401':
+          description: No autorizado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Credenciales no proporcionadas"
+      security:
+        - TokenAuth: []
+    post:
+      summary: Subir adjunto
+      description: |
+        Sube un adjunto con `multipart/form-data`.
+        Ejemplo: `POST /attachments/` con `file` e `issue`.
+      operationId: createAttachment
+      tags:
+        - Attachments
+      requestBody:
+        description: Archivo y datos del adjunto.
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Archivo (ej. PNG, PDF).
+                issue:
+                  type: integer
+                  description: ID de la incidencia.
+                  example: 1
+              required:
+                - file
+                - issue
+      responses:
+        '201':
+          description: Adjunto subido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Attachment'
+              example:
+                attachment_id: 1
+                issue: 1
+                file: "https://issue-tracker.render.com/media/screenshot.png"
+                uploaded_at: "2025-05-15T12:20:00Z"
+        '400':
+          description: Datos inválidos.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Datos inválidos"
+        '401':
+          description: No autorizado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Credenciales no proporcionadas"
+      security:
+        - TokenAuth: []
+  /attachments/{attachment_id}/:
+    get:
+      summary: Obtener adjunto
+      description: |
+        Recupera un adjunto por ID.
+        Ejemplo: `GET /attachments/1/`.
+      operationId: getAttachment
+      tags:
+        - Attachments
+      parameters:
+        - name: attachment_id
+          in: path
+          description: ID del adjunto.
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+          example: 1
+      responses:
+        '200':
+          description: Detalles del adjunto.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Attachment'
+              example:
+                attachment_id: 1
+                issue: 1
+                file: "https://issue-tracker.render.com/media/screenshot.png"
+                uploaded_at: "2025-05-15T12:20:00Z"
+        '401':
+          description: No autorizado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Credenciales no proporcionadas"
+        '404':
+          description: Adjunto no encontrado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Adjunto no encontrado"
+      security:
+        - TokenAuth: []
+    delete:
+      summary: Eliminar adjunto
+      description: |
+        Elimina un adjunto por ID.
+        Ejemplo: `DELETE /attachments/1/`.
+      operationId: deleteAttachment
+      tags:
+        - Attachments
+      parameters:
+        - name: attachment_id
+          in: path
+          description: ID del adjunto.
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+          example: 1
+      responses:
+        '204':
+          description: Adjunto eliminado.
+          content: {}
+        '401':
+          description: No autorizado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Credenciales no proporcionadas"
+        '404':
+          description: Adjunto no encontrado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Adjunto no encontrado"
+      security:
+        - TokenAuth: []
+  /watchers/:
+    get:
+      summary: Listar observadores
+      description: |
+        Recupera observadores, filtrados por `issue_id`.
+        Ejemplo: `GET /watchers/?issue_id=1`.
+      operationId: listWatchers
+      tags:
+        - Watchers
+      parameters:
+        - name: issue_id
+          in: query
+          description: Filtrar por ID de incidencia.
+          schema:
+            type: integer
+            minimum: 1
+          example: 1
+      responses:
+        '200':
+          description: Lista de observadores.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Watcher'
+              example:
+                - id: 1
+                  issue: 1
+                  user: "alice"
+                - id: 2
+                  issue: 1
+                  user: "bob"
+        '401':
+          description: No autorizado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Credenciales no proporcionadas"
+      security:
+        - TokenAuth: []
+    post:
+      summary: Añadir observador
+      description: |
+        Añade al usuario autenticado como observador.
+        Ejemplo: `POST /watchers/` con `issue`.
+      operationId: createWatcher
+      tags:
+        - Watchers
+      requestBody:
+        description: Datos del observador.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Watcher'
+            example:
+              issue: 1
+      responses:
+        '201':
+          description: Observador añadido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Watcher'
+              example:
+                id: 1
+                issue: 1
+                user: "alice"
+        '400':
+          description: Datos inválidos.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Usuario ya observa este issue"
+        '401':
+          description: No autorizado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Credenciales no proporcionadas"
+      security:
+        - TokenAuth: []
+  /watchers/{watcher_id}/:
+    get:
+      summary: Obtener observador
+      description: |
+        Recupera un observador por ID.
+        Ejemplo: `GET /watchers/1/`.
+      operationId: getWatcher
+      tags:
+        - Watchers
+      parameters:
+        - name: watcher_id
+          in: path
+          description: ID del observador.
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+          example: 1
+      responses:
+        '200':
+          description: Detalles del observador.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Watcher'
+              example:
+                id: 1
+                issue: 1
+                user: "alice"
+        '401':
+          description: No autorizado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Credenciales no proporcionadas"
+        '404':
+          description: Observador no encontrado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Watcher no encontrado"
+      security:
+        - TokenAuth: []
+    delete:
+      summary: Eliminar observador
+      description: |
+        Elimina un observador por ID (solo el usuario).
+        Ejemplo: `DELETE /watchers/1/`.
+      operationId: deleteWatcher
+      tags:
+        - Watchers
+      parameters:
+        - name: watcher_id
+          in: path
+          description: ID del observador.
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+          example: 1
+      responses:
+        '204':
+          description: Observador eliminado.
+          content: {}
+        '401':
+          description: No autorizado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Credenciales no proporcionadas"
+        '403':
+          description: No eres el observador.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "No puedes eliminar este watcher"
+        '404':
+          description: Observador no encontrado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Watcher no encontrado"
+      security:
+        - TokenAuth: []
+  /settings/:
+    get:
+      summary: Obtener configuraciones
+      description: |
+        Recupera estados, prioridades, severidades y tipos.
+        Ejemplo: `GET /settings/`.
+      operationId: getSettings
+      tags:
+        - Settings
+      responses:
+        '200':
+          description: Configuraciones recuperadas.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Settings'
+              example:
+                statuses:
+                  - id: 1
+                    name: "Open"
+                    orden: 1
+                  - id: 2
+                    name: "In Progress"
+                    orden: 2
+                priorities:
+                  - id: 1
+                    name: "High"
+                    orden: 1
+                  - id: 2
+                    name: "Medium"
+                    orden: 2
+                severities:
+                  - id: 1
+                    name: "Critical"
+                    orden: 1
+                  - id: 2
+                    name: "Major"
+                    orden: 2
+                types:
+                  - id: 1
+                    name: "Bug"
+                    orden: 1
+                  - id: 2
+                    name: "Feature"
+                    orden: 2
+        '401':
+          description: No autorizado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Credenciales no proporcionadas"
+      security:
+        - TokenAuth: []
+  /statuses/:
+    get:
+      summary: Listar estados
+      description: |
+        Recupera estados ordenados por `orden`.
+        Ejemplo: `GET /statuses/`.
+      operationId: listStatuses
+      tags:
+        - Settings
+      responses:
+        '200':
+          description: Lista de estados.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Status'
+              example:
+                - id: 1
+                  name: "Open"
+                  orden: 1
+                - id: 2
+                  name: "In Progress"
+                  orden: 2
+        '401':
+          description: No autorizado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Credenciales no proporcionadas"
+      security:
+        - TokenAuth: []
+    post:
+      summary: Crear estado
+      description: |
+        Crea un estado para incidencias.
+        Ejemplo: `POST /statuses/` con `name` y `orden`.
+      operationId: createStatus
+      tags:
+        - Settings
+      requestBody:
+        description: Datos del estado.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Status'
+            example:
+              name: "Closed"
+              orden: 3
+      responses:
+        '201':
+          description: Estado creado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+              example:
+                id: 3
+                name: "Closed"
+                orden: 3
+        '400':
+          description: Datos inválidos.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Datos inválidos"
+        '401':
+          description: No autorizado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Credenciales no proporcionadas"
+      security:
+        - TokenAuth: []
+  /priorities/:
+    get:
+      summary: Listar prioridades
+      description: |
+        Recupera prioridades ordenadas por `orden`.
+        Ejemplo: `GET /priorities/`.
+      operationId: listPriorities
+      tags:
+        - Settings
+      responses:
+        '200':
+          description: Lista de prioridades.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Priority'
+              example:
+                - id: 1
+                  name: "High"
+                  orden: 1
+                - id: 2
+                  name: "Medium"
+                  orden: 2
+        '401':
+          description: No autorizado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Credenciales no proporcionadas"
+      security:
+        - TokenAuth: []
+    post:
+      summary: Crear prioridad
+      description: |
+        Crea una prioridad para incidencias.
+        Ejemplo: `POST /priorities/` con `name` y `orden`.
+      operationId: createPriority
+      tags:
+        - Settings
+      requestBody:
+        description: Datos de la prioridad.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Priority'
+            example:
+              name: "Low"
+              orden: 3
+      responses:
+        '201':
+          description: Prioridad creada.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Priority'
+              example:
+                id: 3
+                name: "Low"
+                orden: 3
+        '400':
+          description: Datos inválidos.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Datos inválidos"
+        '401':
+          description: No autorizado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Credenciales no proporcionadas"
+      security:
+        - TokenAuth: []
+  /types/:
+    get:
+      summary: Listar tipos
+      description: |
+        Recupera tipos ordenados por `orden`.
+        Ejemplo: `GET /types/`.
+      operationId: listTypes
+      tags:
+        - Settings
+      responses:
+        '200':
+          description: Lista de tipos.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Type'
+              example:
+                - id: 1
+                  name: "Bug"
+                  orden: 1
+                - id: 2
+                  name: "Feature"
+                  orden: 2
+        '401':
+          description: No autorizado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Credenciales no proporcionadas"
+      security:
+        - TokenAuth: []
+    post:
+      summary: Crear tipo
+      description: |
+        Crea un tipo para incidencias.
+        Ejemplo: `POST /types/` con `name` y `orden`.
+      operationId: createType
+      tags:
+        - Settings
+      requestBody:
+        description: Datos del tipo.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Type'
+            example:
+              name: "Task"
+              orden: 3
+      responses:
+        '201':
+          description: Tipo creado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Type'
+              example:
+                id: 3
+                name: "Task"
+                orden: 3
+        '400':
+          description: Datos inválidos.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Datos inválidos"
+        '401':
+          description: No autorizado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Credenciales no proporcionadas"
+      security:
+        - TokenAuth: []
+  /severities/:
+    get:
+      summary: Listar severidades
+      description: |
+        Recupera severidades ordenadas por `orden`.
+        Ejemplo: `GET /severities/`.
+      operationId: listSeverities
+      tags:
+        - Settings
+      responses:
+        '200':
+          description: Lista de severidades.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Severity'
+              example:
+                - id: 1
+                  name: "Critical"
+                  orden: 1
+                - id: 2
+                  name: "Major"
+                  orden: 2
+        '401':
+          description: No autorizado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Credenciales no proporcionadas"
+      security:
+        - TokenAuth: []
+    post:
+      summary: Crear severidad
+      description: |
+        Crea una severidad para incidencias.
+        Ejemplo: `POST /severities/` con `name` y `orden`.
+      operationId: createSeverity
+      tags:
+        - Settings
+      requestBody:
+        description: Datos de la severidad.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Severity'
+            example:
+              name: "Minor"
+              orden: 3
+      responses:
+        '201':
+          description: Severidad creada.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Severity'
+              example:
+                id: 3
+                name: "Minor"
+                orden: 3
+        '400':
+          description: Datos inválidos.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Datos inválidos"
+        '401':
+          description: No autorizado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Credenciales no proporcionadas"
+      security:
+        - TokenAuth: []
+security:
+  - TokenAuth: []
