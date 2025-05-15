@@ -4,18 +4,33 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import re_path
 from django.views.static import serve
-from Issue_Tracker import api
+from rest_framework import permissions
 
+from Issue_Tracker import api
+from drf_yasg.views import get_schema_view
+from drf_yasg import openapi
 
 from django.urls import path, include
 
 from Issue_Tracker.views import *
-
+schema_view = get_schema_view(
+    openapi.Info(
+        title="Issue Tracker API",
+        default_version='v1',
+        description="API para gestionar issues, comentarios, adjuntos y watchers",
+        terms_of_service="https://www.example.com/terms/",
+        contact=openapi.Contact(email="contact@example.com"),
+        license=openapi.License(name="MIT License"),
+    ),
+    public=True,  # Accesible sin autenticación para la documentación
+    permission_classes=(permissions.AllowAny,),
+)
 urlpatterns = [
     # Admin site
     path('admin/', admin.site.urls),
 
     path('accounts/', include('allauth.urls')),
+    path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
 
     path('login', custom_login_view, name='custom-login'),
     path('login/', custom_login_view, name='custom-login'),
