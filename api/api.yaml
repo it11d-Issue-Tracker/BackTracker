@@ -53,11 +53,11 @@ externalDocs:
   description: Repositorio y documentación
   url: https://github.com/equipo/issue-tracker
 servers:
-- url: https://backtracker-3hat.onrender.com/api
+- url: https://backtracker-3hat.onrender.com
   description: Servidor Render (backtracker-3hat)
-- url: https://issue-tracker.render.com/api
+- url: https://issue-tracker.render.com
   description: Servidor de producción (Render)
-- url: http://localhost:8000/api
+- url: http://localhost:8000
   description: Servidor de desarrollo local
 components:
   securitySchemes:
@@ -1438,7 +1438,7 @@ paths:
       summary: Listar estados
       description: 'Recupera estados ordenados por `orden`.
 
-        Ejemplo: `GET /statuses/`.
+        Ejemplo: `GET /settings/statuses/`.
 
         '
       operationId: listStatuses
