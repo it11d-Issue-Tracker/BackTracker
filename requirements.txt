@@ -1,6 +1,7 @@
 # Paquetes principales
 Django==5.1.7
 django-environ==0.12.0
+django-cors-headers==4.4.0  # Añadido para manejar CORS
 
 # REST Framework
 djangorestframework==3.15.1
