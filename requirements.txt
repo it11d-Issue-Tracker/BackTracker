@@ -1,36 +1,8 @@
-asgiref==3.8.1
-certifi==2025.1.31
-cffi==1.17.1
-charset-normalizer==3.4.1
-cryptography==44.0.3
-Django==5.2
-django-allauth==65.7.0
-django-environ==0.12.0
-django-filter==25.1
-djangorestframework==3.16.0
-drf-yasg==1.21.10
-idna==3.10
-inflection==0.5.1
-packaging==25.0
-pillow==11.1.0
-psycopg==3.2.6
-psycopg-binary==3.2.6
-psycopg2==2.9.10
-pycparser==2.22
-PyJWT==2.10.1
-pytz==2025.2
-PyYAML==6.0.2
-requests==2.32.3
-sqlparse==0.5.3
-typing_extensions==4.13.1
-tzdata==2025.2
-uritemplate==4.1.1
-urllib3==2.3.0
-whitenoise==6.9.0
-
 # Paquetes principales
 Django==5.1.7
 django-environ==0.12.0
+django-cors-headers==4.4.0  # Añadido para manejar CORS
+drf-yasg==1.21.7
 
 # REST Framework
 djangorestframework==3.15.1

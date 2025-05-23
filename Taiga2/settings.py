@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'django_filters',
+    'corsheaders',
     'drf_yasg',
     'allauth',
     'allauth.account',
@@ -69,13 +70,33 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'allauth.account.middleware.AccountMiddleware',
 
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+CORS_ALLOWED_ORIGINS = [
+    'https://editor.swagger.io',
+]
+
+CORS_ALLOW_METHODS = [
+    'GET',
+    'POST',
+    'PUT',
+    'DELETE',
+    'OPTIONS',
+]
+
+CORS_ALLOW_HEADERS = [
+    'content-type',
+    'authorization',  # Necesario para TokenAuth
+]
+
+CORS_ALLOW_CREDENTIALS = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')

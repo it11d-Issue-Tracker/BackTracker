@@ -1,11 +1,13 @@
 
 from django.contrib import admin
 from django.conf import settings
+from django.http import HttpResponse
 from django.conf.urls.static import static
 from django.urls import re_path
 from django.views.static import serve
 from rest_framework import permissions
-
+import yaml
+import os
 from Issue_Tracker import api
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
@@ -13,24 +15,38 @@ from drf_yasg import openapi
 from django.urls import path, include
 
 from Issue_Tracker.views import *
-schema_view = get_schema_view(
-    openapi.Info(
-        title="Issue Tracker API",
-        default_version='v1',
-        description="API para gestionar issues, comentarios, adjuntos y watchers",
-        terms_of_service="https://www.example.com/terms/",
-        contact=openapi.Contact(email="contact@example.com"),
-        license=openapi.License(name="MIT License"),
-    ),
-    public=True,  # Accesible sin autenticación para la documentación
-    permission_classes=(permissions.AllowAny,),
-)
+
+# Custom view to serve api.yaml with Swagger UI
+def serve_swagger_yaml(request):
+    yaml_file_path = os.path.join(settings.BASE_DIR, 'api/api.yaml')
+    try:
+        with open(yaml_file_path, 'r') as file:
+            yaml_content = yaml.safe_load(file)
+    except FileNotFoundError:
+        return HttpResponse("Error: api.yaml file not found", status=404)
+    except yaml.YAMLError:
+        return HttpResponse("Error: Invalid YAML format in api.yaml", status=400)
+
+    # Create a schema view with the loaded YAML content
+    schema_view = get_schema_view(
+        openapi.Info(
+            title=yaml_content.get('info', {}).get('title', 'Issue Tracker API'),
+            default_version=yaml_content.get('info', {}).get('version', 'v1'),
+            description=yaml_content.get('info', {}).get('description', 'API para gestionar issues'),
+            terms_of_service="https://www.example.com/terms/",
+            contact=openapi.Contact(email="daniel.espinalt@estudiantat.upc.edu"),
+            license=openapi.License(name="MIT License"),
+        ),
+        public=True,
+        permission_classes=(permissions.AllowAny,),
+    )
+    return schema_view.with_ui('swagger', cache_timeout=0)(request)
 urlpatterns = [
     # Admin site
     path('admin/', admin.site.urls),
 
     path('accounts/', include('allauth.urls')),
-    path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+    path('swagger/', serve_swagger_yaml, name='schema-swagger-ui'),
 
     path('login', custom_login_view, name='custom-login'),
     path('login/', custom_login_view, name='custom-login'),
