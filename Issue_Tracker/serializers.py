@@ -20,11 +20,10 @@ class AttachmentSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class WatcherSerializer(serializers.ModelSerializer):
-    Username = serializers.CharField(source='user.username', read_only=True)
 
     class Meta:
         model = Watcher
-        fields = ['issue', 'user', 'Username']
+        fields = ['id', 'issue', 'user']
         read_only_fields = ['user', 'Username']
 
 class IssueSerializer(serializers.ModelSerializer):
