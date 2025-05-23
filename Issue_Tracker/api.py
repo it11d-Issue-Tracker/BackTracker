@@ -276,6 +276,9 @@ class deleteStatusAPIView(APIView):
     def delete(self, request, status_id):
         try:
             sstatus = Status.objects.get(pk=status_id)
+            default_status = Issue._meta.get_field('status').get_default()
+            if sstatus.id == default_status:
+                return Response({"error": "No puedes eliminar el estado por defecto."}, status=status.HTTP_400_BAD_REQUEST)
         except Status.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         sstatus.delete()
@@ -301,6 +304,9 @@ class deletePriorityAPIView(APIView):
     def delete(self, request, priority_id):
         try:
             priority = Priority.objects.get(pk=priority_id)
+            default_priority = Issue._meta.get_field('priority').get_default()
+            if priority.id == default_priority:
+                return Response({"error": "No puedes eliminar la prioridad por defecto."}, status=status.HTTP_400_BAD_REQUEST)
         except Priority.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         priority.delete()
@@ -325,6 +331,9 @@ class deleteTypeAPIView(APIView):
     def delete(self, request, type_id):
         try:
             type = Type.objects.get(pk=type_id)
+            default_type = Issue._meta.get_field('type').get_default()
+            if type.id == default_type:
+                return Response({"error": "No puedes eliminar el tipo por defecto."}, status=status.HTTP_400_BAD_REQUEST)
         except Type.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         type.delete()
@@ -349,6 +358,9 @@ class deleteSeverityAPIView(APIView):
     def delete(self, request, severity_id):
         try:
             severity = Severity.objects.get(pk=severity_id)
+            default_severity = Issue._meta.get_field('severity').get_default()
+            if severity.id == default_severity:
+                return Response({"error": "No puedes eliminar la severidad por defecto."}, status=status.HTTP_400_BAD_REQUEST)
         except Severity.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         severity.delete()

@@ -78,12 +78,12 @@ urlpatterns = [
     path('settings/type/', api.typeAPIView.as_view(), name='type'),
 
     path('settings/delete_status/<str:status_id>/', api.deleteStatusAPIView.as_view(), name='delete_status'),
-    path('settings/delete_priority/<str:priority_id>/', delete_priority, name='delete_priority'),
+    path('settings/delete_priority/<str:priority_id>/', api.deletePriorityAPIView().as_view(), name='delete_priority'),
 
 
 
-    path('settings/delete_severity/<str:severity_id>/', delete_severity, name='delete_severity'),
-    path('settings/delete_type/<str:type_id>/', delete_type, name='delete_type'),
+    path('settings/delete_severity/<str:severity_id>/', api.deleteSeverityAPIView.as_view(), name='delete_severity'),
+    path('settings/delete_type/<str:type_id>/', api.deleteTypeAPIView.as_view(), name='delete_type'),
 
     re_path(r'^media/(?P<path>.*)$', serve, {
         'document_root': settings.MEDIA_ROOT,
