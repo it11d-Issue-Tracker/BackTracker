@@ -380,10 +380,12 @@ class UserApiView(APIView):
         perfil = get_object_or_404(Perfil, user_id=userid)
         perfil_bio_str = str(perfil.bio)
         perfil_url = str(perfil.avatar_url)
+        username = user.username
 
 
         data = {
             'id': user.id,
+            'username': username,
             'perfil': perfil_bio_str,
             'url': perfil_url,
             'assigned_issues': IssueSerializer(assigned_issues, many=True).data,
