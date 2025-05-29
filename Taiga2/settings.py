@@ -79,21 +79,28 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-CORS_ALLOWED_ORIGINS = [
-    'https://editor.swagger.io',
-]
+CORS_ALLOW_ALL_ORIGINS = True
+
 
 CORS_ALLOW_METHODS = [
     'GET',
     'POST',
     'PUT',
+    'PATCH',
     'DELETE',
     'OPTIONS',
 ]
 
 CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
     'content-type',
-    'authorization',  # Necesario para TokenAuth
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
 ]
 
 CORS_ALLOW_CREDENTIALS = True
